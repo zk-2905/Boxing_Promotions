@@ -8,7 +8,7 @@ class UserProfile(models.Model):
     age = models.IntegerField(null=True, blank=True)
     nickname = models.CharField(max_length=100, null=True, blank=True)
     weight = models.IntegerField(null=True, blank=True)
-    #profile_picture = models.ImageField(upload_to='profile_pics', null=True, blank=True)
+    profile_picture = models.ImageField(null=True, blank=True, upload_to="images/")
 
     def __str__(self):
         return self.user.username
