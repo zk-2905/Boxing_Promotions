@@ -5,7 +5,7 @@ from .forms import UserForm, UserProfileForm
 from .models import UserProfile
 
 def HomePage(request):
-    return render(request,'home.html')
+    return render(request,'box/home.html')
 
 @login_required
 @transaction.atomic
@@ -19,9 +19,9 @@ def update_profile(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            return redirect('user:profile')
+            return redirect('box:profile')
     else: 
         user_form = UserForm(instance=request.user)
         profile_form = UserProfileForm(instance=user_profile)
 
-    return render(request, 'profile,html', {'user_form': user_form, 'profile_form': profile_form})
+    return render(request, 'box/profile.html', {'user_form': user_form, 'profile_form': profile_form})

@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+
+    <!-- Link to the CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'box/css/profile.css' %}">
+
+</head>
+<body>
+
+    <header>
+        <h1>User Profile</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>User Information</h2>
+            <ul>
+                <li><strong>Name:</strong> {{ user_form.instance.first_name }} {{ user_form.instance.last_name }}</li>
+                <li><strong>Age:</strong> {{ profile_form.instance.age }}</li>
+                <li><strong>Nickname:</strong> {{ profile_form.instance.nickname }}</li>
+                <li><strong>Weight:</strong> {{ profile_form.instance.weight }} kg</li>
+            </ul>
+        </section>
+
+        <!-- Add more sections for additional profile information as needed -->
+
+        <section>
+            <h2>Edit Profile</h2>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ user_form.as_p }}
+                {{ profile_form.as_p }}
+                <button type="submit">Save Changes</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 MySite. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views
+from .views import HomePage,update_profile
 
-app_name = "user"
+app_name = "box"
 
 urlpatterns = [
-    path("accounts/profile/", views.update_profile, name='profile')
+    path('', HomePage, name='home'),
+    path("accounts/profile/", update_profile, name='profile'),
 ]
