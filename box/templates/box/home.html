@@ -1,51 +1,36 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySite Homepage</title>
-    <!-- Add your CSS styles or include external stylesheets here -->
+    <title>Home</title>
+
+    <!-- Link to the CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'box/css/home.css' %}">
 </head>
 <body>
 
     <header>
-        <h1>Welcome to MySite!</h1>
+        <h1>Welcome to MySite</h1>
+        <div class="nav-buttons">
+            <a href="{% url 'account_signup' %}">Sign Up</a>
+            <a href="{% url 'account_login' %}">Log In</a>
+        </div>
     </header>
-
-    <nav>
-        <!-- Add navigation links if needed -->
-    </nav>
 
     <main>
         <section>
-            <h2>About Us</h2>
-            <p>This is a brief description of our website or company.</p>
-        </section>
-
-        <section>
-            <h2>Latest News</h2>
-            <ul>
-                <li>News item 1</li>
-                <li>News item 2</li>
-                <!-- Add more news items as needed -->
-            </ul>
-        </section>
-
-        <section>
-            <h2>Contact Us</h2>
-            <p>Feel free to reach out to us through the following means:</p>
-            <address>
-                Email: <a href="mailto:info@example.com">info@example.com</a><br>
-                Phone: +1 (123) 456-7890
-            </address>
+            <h2>Homepage Content</h2>
+            <!-- Include your homepage content here -->
+            <p>This is the homepage content.</p>
         </section>
     </main>
 
     <footer>
         <p>&copy; 2023 MySite. All rights reserved.</p>
     </footer>
-
-    <!-- Add your JavaScript scripts or include external scripts here -->
 
 </body>
 </html>
