@@ -59,6 +59,11 @@ input, select {
     box-sizing: border-box;
 }
 
+#id_profile_picture {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
 button {
     background-color: #333;
     color: #fff;

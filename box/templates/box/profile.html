@@ -25,6 +25,14 @@
                 <li><strong>Age:</strong> {{ profile_form.instance.age }}</li>
                 <li><strong>Nickname:</strong> {{ profile_form.instance.nickname }}</li>
                 <li><strong>Weight:</strong> {{ profile_form.instance.weight }} kg</li>
+                <li><strong>Profile Picture:</strong></li>
+                <li>
+                    {% if profile_form.instance.profile_picture %}
+                        <img src="{{ profile_form.instance.profile_picture.url }}" alt="Profile Picture" id="id_profile_picture">
+                    {% else %}
+                        No profile picture available.
+                    {% endif %}
+                </li>
             </ul>
         </section>
 
@@ -36,6 +44,7 @@
                 {% csrf_token %}
                 {{ user_form.as_p }}
                 {{ profile_form.as_p }}
+                <label for="id_profile_picture">Profile Picture:</label>
                 <button type="submit">Save Changes</button>
             </form>
         </section>
