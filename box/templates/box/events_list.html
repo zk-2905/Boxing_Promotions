@@ -1,0 +1,17 @@
+{% block title %}Upcoming Boxing Events{% endblock %}
+
+<h2>Upcoming Boxing Events</h2>
+
+{% if events %}
+    <ul>
+        {% for event in events %}
+            <li>
+                <strong>Date:</strong> {{ event.date }} -
+                <strong>Location:</strong> {{ event.location }}
+                <a href="{% url 'register_event' event.id %}">Register</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No upcoming events at the moment.</p>
+{% endif %}

@@ -18,3 +18,11 @@ class UserProfile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
+
+
+class BoxingEvent(models.Model):
+    date = models.DateField()
+    location = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.date} - {self.location}"

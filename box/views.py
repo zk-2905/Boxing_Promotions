@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from .forms import UserForm, UserProfileForm
-from .models import UserProfile
+from .models import UserProfile, BoxingEvent
 
 def HomePage(request):
     return render(request,'box/home.html')
@@ -25,3 +25,12 @@ def update_profile(request):
         profile_form = UserProfileForm(instance=user_profile)
 
     return render(request, 'box/profile.html', {'user_form': user_form, 'profile_form': profile_form})
+
+@login_required
+def events_list(request):
+    events = BoxingEvent.objects.all()
+    return render(request, 'box/events_list.html', {'events': events})
+
+def register_event(request, event_id):
+    event = get_object_or_404(BoxingEvent, id=event_id)
+    return render(request, 'box/register_event.html', {'event': event})
