@@ -31,8 +31,8 @@ def update_profile(request):
     return render(request, 'box/profile.html', {'user_form': user_form, 'profile_form': profile_form})
 
 @receiver(user_logged_in)
-def user_logged_in_handler(sender, request, user, **kwargs):
-    if not user.last_login:
+def user_logged_in_handler(sender, request, box, **kwargs):
+    if not box.last_login:
         messages.success(request, "Welcome! You have successfully logged in.")
         redirect_url = reverse('box:events_list')
         return redirect(redirect_url)
