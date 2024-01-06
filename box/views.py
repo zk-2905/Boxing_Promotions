@@ -34,7 +34,7 @@ def update_profile(request):
 def user_logged_in_handler(sender, request, user, **kwargs):
     if not user.last_login:
         messages.success(request, "Welcome! You have successfully logged in.")
-        redirect_url = reverse('user:events_list')
+        redirect_url = reverse('box:events_list')
         return redirect(redirect_url)
 
 @login_required

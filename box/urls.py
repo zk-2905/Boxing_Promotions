@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import HomePage,update_profile,CustomLoginView
+from .views import HomePage,update_profile
 
 app_name = "box"
 
