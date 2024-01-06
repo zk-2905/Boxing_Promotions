@@ -3,8 +3,7 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from django.dispatch import receiver
-from allauth.account.signals import user_logged_in
+from allauth.account.views import LoginView
 from .forms import UserForm, UserProfileForm
 from .models import UserProfile, BoxingEvent
 
@@ -30,12 +29,14 @@ def update_profile(request):
 
     return render(request, 'box/profile.html', {'user_form': user_form, 'profile_form': profile_form})
 
-@receiver(user_logged_in)
-def user_logged_in_handler(sender, request, box, **kwargs):
-    if not box.last_login:
-        messages.success(request, "Welcome! You have successfully logged in.")
-        redirect_url = reverse('box:events_list')
-        return redirect(redirect_url)
+class CustomLoginView(LoginView):
+    def form_valid(self, form):
+        response =  super().form_valid(form)
+        user = form.get_user()
+        if user and user.last_login:
+            messages.success(self.request, "Welcome! You have successfully logged in.")
+            return redirect(reverse('box:events_list'))
+        return response
 
 @login_required
 def events_list(request):
