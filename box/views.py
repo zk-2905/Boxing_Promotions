@@ -35,7 +35,7 @@ class CustomLoginView(LoginView):
         user = form.get_user()
         if user and user.last_login:
             messages.success(self.request, "Welcome! You have successfully logged in.")
-            return redirect(reverse('box:events_list'))
+            return redirect(reverse('user:events_list'))
         return response
 
 @login_required
