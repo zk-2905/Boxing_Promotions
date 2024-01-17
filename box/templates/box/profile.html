@@ -1,58 +1,44 @@
+<!-- box/profile.html -->
+<title>Profile</title>
+{% extends 'box/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-
-    <!-- Link to the CSS file -->
+{% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'box/css/profile.css' %}">
+    
+    <div class="profile-container">
+        <h2>User Profile</h2>
 
-</head>
-<body>
+        <!-- Section for displaying details -->
+        <div class="profile-details">
+            {% if user.first_name or user.last_name %}
+                <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+            {% endif %}
+            {% if user_profile.age %}
+                <p><strong>Age:</strong> {{ user_profile.age }}</p>
+            {% endif %}
+            {% if user_profile.nickname %}
+                <p><strong>Nickname:</strong> {{ user_profile.nickname }}</p>
+            {% endif %}
+            {% if user_profile.weight %}
+                <p><strong>Weight:</strong> {{ user_profile.weight }}kg</p>
+            {% endif %}
+            {% if user_profile.wins is not None or user_profile.losses is not None or user_profile.draws is not None %}
+                <p><strong>Record:</strong> {{ user_profile.wins|default:0 }}-{{ user_profile.losses|default:0 }}-{{ user_profile.draws|default:0 }}</p>
+            {% endif %}
+            {% if user_profile.profile_picture %}
+                <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+            {% endif %}
+        </div>
 
-    <header>
-        <h1>User Profile</h1>
-    </header>
-
-    <main>
-        <section>
-            <h2>User Information</h2>
-            <ul>
-                <li><strong>Name:</strong> {{ user_form.instance.first_name }} {{ user_form.instance.last_name }}</li>
-                <li><strong>Age:</strong> {{ profile_form.instance.age }}</li>
-                <li><strong>Nickname:</strong> {{ profile_form.instance.nickname }}</li>
-                <li><strong>Weight:</strong> {{ profile_form.instance.weight }} kg</li>
-                <li><strong>Profile Picture:</strong></li>
-                <li>
-                    {% if profile_form.instance.profile_picture %}
-                        <img src="{{ profile_form.instance.profile_picture.url }}" alt="Profile Picture" id="id_profile_picture">
-                    {% else %}
-                        No profile picture available.
-                    {% endif %}
-                </li>
-            </ul>
-        </section>
-
-        <!-- Add more sections for additional profile information as needed -->
-
-        <section>
-            <h2>Edit Profile</h2>
+        <!-- Section for the form -->
+        <div class="profile-form">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ user_form.as_p }}
                 {{ profile_form.as_p }}
-                <label for="id_profile_picture">Profile Picture:</label>
-                <button type="submit">Save Changes</button>
+                <button type="submit">Update Profile</button>
             </form>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2023 MySite. All rights reserved.</p>
-    </footer>
-
-</body>
-</html>
+        </div>
+    </div>
+{% endblock %}

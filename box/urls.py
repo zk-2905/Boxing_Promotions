@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import HomePage,update_profile,CustomLoginView
+from .views import HomePage, update_profile
 
 
 app_name = "box"
@@ -8,7 +8,6 @@ app_name = "box"
 urlpatterns = [
     path('', HomePage, name='home'),
     path("accounts/profile/", update_profile, name='profile'),
-    path('accounts/login/', CustomLoginView.as_view(), name='account_login'),
     path("events/", views.events_list, name='events_list'),
     path("events/<int:event_id>/register/", views.register_event, name='register_event'),
 ]

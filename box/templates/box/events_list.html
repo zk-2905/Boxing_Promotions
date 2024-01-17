@@ -1,3 +1,11 @@
+<title>Events</title>
+
+{% extends 'box/base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <!-- Your events list page content here -->
 {% block title %}Upcoming Boxing Events{% endblock %}
 
 <h2>Upcoming Boxing Events</h2>
@@ -15,3 +23,4 @@
 {% else %}
     <p>No upcoming events at the moment.</p>
 {% endif %}
+{% endblock %}

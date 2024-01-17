@@ -1,0 +1,79 @@
+{% load static %}
+    <!-- Your profile page content here -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Link to the Boxicon CSS file-->
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+        <!-- Link to the CSS file -->
+        <link rel="stylesheet" type="text/css" href="{% static 'box/css/base.css' %}">
+
+    </head>
+    <body>
+        <div class="content-container">
+            {% block content %}{% endblock %}
+        </div>    
+        <nav>
+            <div class="logo">
+                <i class='bx bx-menu menu-icon'></i>
+                <span class="logo-name">Boxing Promotions</span>
+            </div>
+
+            <div class="sidebar">
+                <div class="logo">
+                    <i class='bx bx-menu menu-icon'></i>
+                    <span class="logo-name">Boxing Promotions</span>
+                </div>
+
+                <div class="sidebar-content">
+                    <ul class="lists">
+                        <li class="list">
+                            <a href="{% url 'box:profile' %}" class="nav-link">
+                                <i class='bx bxs-user-circle icon'></i>
+                                <span class="link">Profile</span>
+                            </a>
+                        </li>
+                        <li class="list">
+                            <a href="{% url 'box:events_list' %}" class="nav-link">
+                                <i class='bx bxs-calendar-event icon'></i>
+                                <span class="link">Event</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="bottom-content">
+                        <li class="list">
+                            <a href="{% url 'account_logout' %}" class="nav-link">
+                                <i class='bx bxs-log-out icon'></i>
+                                <span class="link">Logout</span>
+                            </a>
+                        </li>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <section class="overlay"></section>
+
+        <script>
+            const navBar = document.querySelector("nav"),
+                menuBtns = document.querySelectorAll(".menu-icon"),
+                overlay = document.querySelector(".overlay");
+            
+            menuBtns.forEach((menuBtn) => {
+                menuBtn.addEventListener("click", () => {
+                    navBar.classList.toggle("open");
+                });
+            });
+
+            overlay.addEventListener("click", () => {
+                navBar.classList.remove("open");
+            })
+        </script>
+    </body>
+</html>

@@ -26,17 +26,9 @@ def update_profile(request):
     else: 
         user_form = UserForm(instance=request.user)
         profile_form = UserProfileForm(instance=user_profile)
+    
+    return render(request, 'box/profile.html', {'user_form': user_form, 'profile_form': profile_form, 'user': request.user, 'user_profile': user_profile})
 
-    return render(request, 'box/profile.html', {'user_form': user_form, 'profile_form': profile_form})
-
-class CustomLoginView(LoginView):
-    def form_valid(self, form):
-        response =  super().form_valid(form)
-        user = form.get_user()
-        if user and user.last_login:
-            messages.success(self.request, "Welcome! You have successfully logged in.")
-            return redirect(reverse('user:events_list'))
-        return response
 
 @login_required
 def events_list(request):
@@ -46,3 +38,8 @@ def events_list(request):
 def register_event(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     return render(request, 'box/register_event.html', {'event': event})
+
+@login_required
+def find_matching_user(user_profile):
+    matching_user = UserProfile.objects.filter(weight=user_profile.weight).exclude(user=user_profile.user)
+    
