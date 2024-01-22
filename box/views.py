@@ -3,9 +3,11 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from django.db.models import Count
 from allauth.account.views import LoginView
 from .forms import UserForm, UserProfileForm
-from .models import UserProfile, BoxingEvent
+from .models import UserProfile, BoxingEvent, EventRegistration, EventFight, Fight
+import datetime
 
 def HomePage(request):
     return render(request,'box/home.html')
@@ -32,25 +34,57 @@ def update_profile(request):
 
 @login_required
 def events_list(request):
-    events = BoxingEvent.objects.all()
+    today = datetime.date.today()
+    events = BoxingEvent.objects.filter(date__gte=today)
     return render(request, 'box/events_list.html', {'events': events})
+
+def event_detail(request, event_id):
+    event = get_object_or_404(BoxingEvent, id=event_id)
+    registrations = EventRegistration.objects.filter(event=event)
+    return render(request, 'box/event_detail.html', {'event': event})
 
 def register_event(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+
+    max_fights = 6
+    current_fights_count = EventFight.objects.filter(event=event).count()
+    if current_fights_count >= max_fights:
+        messages.error(request, "The maximum number of fights has been reached for this event.") ### change register button into event full ###
+        return redirect('box:events_list')
+
     if request.method == "POST":
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if profile_form.is_valid():
             profile_form.save()
+
+            existing_registration = EventRegistration.objects.filter(user=request.user, event=event)
+            if existing_registration.exists():
+                messages.warning(request, "You are already registered for this event.")
+                return redirect('box:events_list')
+            
+            registration = EventRegistration(user=request.user, event=event)
+            registration.save()
+
             matching_user = find_matching_user(request.user, event)
             if matching_user:
-                return True ### Need to send email to user to notify an opponent is found. Then on the event it must be on the event details where his name and opponent is alongside with othe oppponents ###
+                create_fight(request.user, matching_user, event)
+                return redirect('box:event_detail', event_id=event.id) ### Need to send email to user to notify an opponent is found. Then on the event it must be on the event details where his name and opponent is alongside with othe oppponents ###
             return redirect('box:events_list')
     else:
         profile_form = UserProfileForm(instance=user_profile)
    
-    return render(request, 'box/register_event.html', {'event': event, 'profile_form': profile_form})
+    return redirect('box:event_detail', event_id=event.id)
 
+def create_fight(user1, user2, event):
+    max_fights = 6
+    current_fights_count = EventFight.objects.filter(event=event).count()
+    if current_fights_count >= max_fights:
+        return  # Don't create a new fight if the limit has been reached
+    fight = Fight.objects.create(red_boxer=user1, blue_boxer=user2)
+    order = current_fights_count + 1  # Increment the order for the new fight
+    event_fight = EventFight.objects.create(event=event, fight=fight, order=order)
+    return event_fight
 
 def find_matching_user(current_user, event):
     current_user_profile = current_user.profile

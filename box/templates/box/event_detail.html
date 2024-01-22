@@ -1,0 +1,22 @@
+{% extends 'box/base.html' %}
+
+{% block content %}
+    <h2>{{ event.date }} - {{ event.location }}</h2>
+
+    <!-- Display all fights for the event -->
+    {% if event.fights.all %}
+        <ul>
+            {% for fight in event.fights.all %}
+                <li>{{ fight.red_boxer }} VS {{ fight.blue_boxer }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No fights scheduled for this event.</p>
+    {% endif %}
+
+    <!-- Register button to find an opponent -->
+    <form method="post" action="{% url 'register_event' event.id %}">
+        {% csrf_token %}
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}
