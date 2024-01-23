@@ -42,8 +42,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'box',
-    'django_celery_results',
-    'django_celery_beat',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -147,16 +145,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# CELERY SETTINGS
-
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-result_backend = 'django-db'
-accept_content = ['application/json']
-result_serializer =  'json'
-task_serializer = 'json'
-timezone = 'Europe/London'
-
-# CELERY BEAT SETTINGS
-
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
