@@ -2,6 +2,19 @@ from django.db import models
 from django.contrib.auth.admin import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.contrib.auth.models import Group, Permission
+
+def create_organiser_group():
+    organiser_group, created = Group.objects.get_or_create(name='organiser')
+    if created:
+        organiser_group.permissions.set([
+            Permission.objects.get(codename='add_event'),
+            Permission.objects.get(codename='change_event'),
+            Permission.objects.get(codename='delete_event'),
+        ])
+create_organiser_group()
+
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -20,6 +33,8 @@ class UserProfile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
+
+
 
 class BoxingEvent(models.Model):
     title = models.CharField(max_length=225, null=True)
