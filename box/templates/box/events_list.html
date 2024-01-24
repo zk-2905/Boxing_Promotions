@@ -1,16 +1,28 @@
-<!-- Your events list page content here -->
+<title>Events</title>
 
-<h2>Upcoming Boxing Events</h2>
+{% extends 'box/base.html' %}
 
-{% if events %}
-    <ul>
-        {% for event in events %}
-            <li>
-                <h3>{{ event.title }} - {{ event.date }} - {{ event.location }}</h3>
-                <a href="{% url 'box:event_detail' event_id=event.id %}">View Details</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No upcoming events at the moment.</p>
-{% endif %}
+{% load static %}
+
+{% block content %}
+    <!-- Your events list page content here -->
+    {% block title %}Upcoming Boxing Events{% endblock %}
+
+    <h2 style="margin-top: 50px;">Upcoming Boxing Events</h2>
+
+    {% if events %}
+        <ul>
+            {% for event in events %}
+                <li>
+                    <strong>Date:</strong> {{ event.date }} -
+                    <strong>Location:</strong> {{ event.location }}
+                    <a href="{% url 'register_event' event.id %}">Register</a>
+                    <h3>{{ event.title }} - {{ event.date }} - {{ event.location }}</h3>
+                    <a href="{% url 'box:event_detail' event_id=event.id %}">View Details</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No upcoming events at the moment.</p>
+    {% endif %}
+{% endblock %}

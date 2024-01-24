@@ -15,7 +15,6 @@ def create_organiser_group():
 create_organiser_group()
 
 
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     age = models.IntegerField(null=True, blank=True)
@@ -28,6 +27,9 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def is_organiser(self):
+        return self.user.groups.filter(name='organiser').exists()
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

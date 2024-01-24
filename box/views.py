@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import UserForm, UserProfileForm
+from .forms import UserForm, UserProfileForm, EventForm
 from .models import UserProfile, BoxingEvent, EventRegistration, EventFight, Fight
 import datetime
 
@@ -105,3 +105,31 @@ def find_matching_user(current_user, event):
 
 def calculate_points(user_profile):
     return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses
+
+def events_management(request):
+    user_profile = request.user.profile
+
+    if user_profile.is_organiser():
+        events = BoxingEvent.objects.all()
+        return render(request, 'box/events_management.html', {'events': events})
+    
+    # If the user is not an organiser, redirect them to error message
+    return render(request, 'box/error_page.html', {'message': 'Permission denied'})
+
+@login_required
+def edit_event(request):
+    if request.method == 'POST':
+        event_id = request.POST.get('event_id')
+        event = BoxingEvent.objects.get(id=event_id)
+
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            return redirect('events_management')
+    else:
+        event_id = request.GET.get('event_id')
+        event = BoxingEvent.objects.get(id=event_id)
+        form = EventForm(instance=event)            
+        return render(request, 'edit_event.html', {'form': form, 'event_id': event_id})
+        
+    return redirect('events_management')
