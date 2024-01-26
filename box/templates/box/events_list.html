@@ -1,22 +1,27 @@
 <title>Events</title>
 
 {% extends 'box/base.html' %}
+{% load static custom_filters %}
 
-{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'box/css/events_list.css' %}">
+
+{% block title %}Upcoming Boxing Events{% endblock %}
 
 {% block content %}
-    <!-- Your events list page content here -->
-    {% block title %}Upcoming Boxing Events{% endblock %}
-
-    <h2 style="margin-top: 50px;">Upcoming Boxing Events</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin-top: 70px;">Upcoming Boxing Events</h2>
+        
+        {% if user|has_group:"organiser" %}
+            <div class="event-buttons" style="margin-top: 55px;display: inline-block; padding: 10px;">
+                <a href="{% url 'box:manage_events' %}" style="color: black;">Manage Events</a>
+            </div>
+        {% endif %}
+    </div>
 
     {% if events %}
         <ul>
             {% for event in events %}
                 <li>
-                    <strong>Date:</strong> {{ event.date }} -
-                    <strong>Location:</strong> {{ event.location }}
-                    <a href="{% url 'register_event' event.id %}">Register</a>
                     <h3>{{ event.title }} - {{ event.date }} - {{ event.location }}</h3>
                     <a href="{% url 'box:event_detail' event_id=event.id %}">View Details</a>
                 </li>

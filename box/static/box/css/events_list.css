@@ -30,3 +30,21 @@
 .event-box a:hover {
     background-color: #0056b3;
 }
+
+/* Styles for the "Manage Events" button */
+.event-buttons {
+    text-align: right;
+    margin-top: 10px;
+}
+
+.event-buttons a {
+    display: inline-block;
+    padding: 10px;
+    background-color: #007BFF;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.event-buttons a:hover {
+    background-color: #0056b3;
+}

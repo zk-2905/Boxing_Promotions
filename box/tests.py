@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import BoxingEvent
+from .models import BoxingEvent, UserProfile, EventRegistration
+from .views import find_matching_user
 from datetime import timedelta, date, datetime
 from django.urls import reverse
 import time
