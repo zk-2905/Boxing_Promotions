@@ -103,33 +103,36 @@ def find_matching_user(current_user, event):
                 return registered_user
     return None
 
+def events_management(request):
+    events = BoxingEvent.objects.all()
+    return render(request, 'box/events_management.html', {'events': events})
+
+@login_required
+def create_event(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST)
+        if form.is_valid():
+            event = form.save()
+            messages.success(request, 'Event created successfully.')
+            return redirect('box:manage_events')
+    else:
+        form = EventForm()
+    
+    return render(request, 'box/create_event.html', {'form': form})
+
 def calculate_points(user_profile):
     return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses
 
-def events_management(request):
-    user_profile = request.user.profile
-
-    if user_profile.is_organiser():
-        events = BoxingEvent.objects.all()
-        return render(request, 'box/events_management.html', {'events': events})
-    
-    # If the user is not an organiser, redirect them to error message
-    return render(request, 'box/error_page.html', {'message': 'Permission denied'})
-
 @login_required
-def edit_event(request):
-    if request.method == 'POST':
-        event_id = request.POST.get('event_id')
-        event = BoxingEvent.objects.get(id=event_id)
+def edit_event(request,event_id):
+    event = get_object_or_404(BoxingEvent,id=event_id)
 
+    if request.method == 'POST':
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
             form.save()
-            return redirect('events_management')
+            return redirect('box:manage_events')
     else:
-        event_id = request.GET.get('event_id')
-        event = BoxingEvent.objects.get(id=event_id)
-        form = EventForm(instance=event)            
-        return render(request, 'edit_event.html', {'form': form, 'event_id': event_id})
+        form = EventForm(instance=event)
         
-    return redirect('events_management')
+    return render(request, 'box/edit_event.html', {'form': form, 'event': event})

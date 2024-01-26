@@ -1,0 +1,13 @@
+<title>Create Event</title>
+
+{% extends 'box/base.html' %}
+
+{% block content %}
+  <h2 style="margin-top: 70px;">Create Event</h2>
+
+  <form method="post" action="{% url 'box:create_event' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Event</button>
+  </form>
+{% endblock %}

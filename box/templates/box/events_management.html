@@ -2,75 +2,17 @@
 {% extends 'box/base.html' %}
 
 {% block content %}
-    <h2>Events Management</h2>
+  <h2 style="margin-top: 70px;">Manage Events</h2>
 
-    <!-- Button to open create event popup -->
-    <button onclick="openCreateEventPopup()">Create Event</button>
+  <a style="margin-top: 50px;" href="{% url 'box:create_event' %}">Create Event</a>
 
-    <!-- Popup for creating a new event -->
-    <div id="createEventPopup" class="popup">
-        <div class="popup-content">
-            <span class="close" onclick="closeCreateEventPopup()">&times;</span>
-            <h3>Create Event</h3>
-            <!-- Add your form fields for creating a new event here -->
-            <!-- For example: event name, date, location, etc. -->
-            <form method="post" action="{% url 'create_event' %}">
-                {% csrf_token %}
-                <!-- Your form fields go here -->
-                <button type="submit">Submit</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Display all current events -->
-    <div class="event-list">
-        <h3>Current Events</h3>
-        <ul>
-            {% for event in events %}
-                <li>
-                    <span>{{ event.title }} - {{ event.date }} - {{ event.location }}</span>
-                    <button onclick="editEvent('{{ event.id }}')">Edit</button>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <!-- Popup for editing an event -->
-    <div id="editEventPopup" class="popup">
-        <div class="popup-content">
-            <span class="close" onclick="closeEditEventPopup()">&times;</span>
-            <h3>Edit Event</h3>
-            <form method="post" action="{% url 'edit_event' %}" id="editEventForm">
-                {% csrf_token %}
-                <input type="hidden" name="event_id" id="editEventId" value="">
-                <label for="editEventTitle">Event Title:</label>
-                <input type="text" name="title" id="editEventTitle" required>
-                <label for="editEventDate">Event Date:</label>
-                <input type="date" name="date" id="editEventDate" required>
-                <label for="editEventLocation">Event Location:</label>
-                <input type="text" name="location" id="editEventLocation" required>
-                <button type="submit">Save</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Function to open the edit event popup
-        function editEvent(eventId) {
-            // Set values in the edit event popup based on the event ID
-            // You may use AJAX to fetch details from the server based on eventId
-            document.getElementById('editEventId').value = eventId;
-            document.getElementById('editEventTitle').value = "Event Title";  // Set the actual value
-            document.getElementById('editEventDate').value = "Event Date";  // Set the actual value
-            document.getElementById('editEventLocation').value = "Event Location";  // Set the actual value
-
-            // Open the edit event popup
-            document.getElementById('editEventPopup').style.display = 'block';
-        }
-
-        // Function to close the edit event popup
-        function closeEditEventPopup() {
-            document.getElementById('editEventPopup').style.display = 'none';
-        }
-    </script>
+  <ul>
+    {% for event in events %}
+      <li>
+        {{ event.title }} - {{ event.date }} - {{ event.location }}
+        <a href="{% url 'box:edit_event' event_id=event.id %}">Edit</a>
+        <!-- Add a delete button here if needed -->
+      </li>
+    {% endfor %}
+  </ul>
 {% endblock %}
