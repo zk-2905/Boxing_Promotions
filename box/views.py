@@ -49,8 +49,7 @@ def event_registration_confirmation(request, event_id):
 def register_event(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-    print("hhohohohoh")
-
+    
     max_fights = 6
     current_fights_count = EventFight.objects.filter(event=event).count()
     if current_fights_count >= max_fights:
@@ -71,6 +70,11 @@ def register_event(request, event_id):
         matching_user = find_matching_user(request.user, event)
         if matching_user:
             create_fight(request.user, matching_user, event)
+            registration.matched = True  ### shows that the user and matched user are matched and can't be matched by another ###
+            registration.save()
+            matching_registration = EventRegistration.objects.get(user= matching_user, event=event)
+            matching_registration.matched = True
+            matching_registration.save()
             return redirect('box:event_detail', event_id=event.id) ### Need to send email to user to notify an opponent is found. Then on the event it must be on the event details where his name and opponent is alongside with othe oppponents ###
         return redirect('box:events_list')
     else:
@@ -92,7 +96,7 @@ def find_matching_user(current_user, event):
     current_user_profile = current_user.userprofile
 
     if calculate_points(current_user_profile) == 0: ### for new boxers ###
-        zero_points_user = event.registered_users.filter(userprofile__wins=0, userprofile__draws=0, userprofile__losses=0, userprofile__weight__range=(current_user_profile.weight - 1, current_user_profile.weight + 1)).exclude(id=current_user.id)
+        zero_points_user = event.registered_users.filter(userprofile__wins=0, userprofile__draws=0, userprofile__losses=0, userprofile__weight__range=(current_user_profile.weight - 1, current_user_profile.weight + 1)).exclude(id=current_user.id).exclude(eventregistration__matched=True)
         if zero_points_user.exists():
             return zero_points_user.first()
 
@@ -104,7 +108,7 @@ def find_matching_user(current_user, event):
 
             points_difference = abs(current_user_points - registered_user_points)
             weight_difference = abs(current_user_profile.weight - registered_user_profile.weight)
-            if (points_difference >= 0 and points_difference <= 5 and weight_difference <= 1 and weight_difference >= -1):
+            if (points_difference >= 0 and points_difference <= 5 and weight_difference <= 1 and weight_difference >= -1 and not EventRegistration.objects.filter(user=registered_user, event=event, matched=True).exists()):
                 return registered_user
     return None
 

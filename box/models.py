@@ -70,6 +70,7 @@ class EventFight(models.Model):
 class EventRegistration(models.Model):
     user = models.ForeignKey(User,null =True, on_delete=models.CASCADE)
     event = models.ForeignKey(BoxingEvent, on_delete=models.CASCADE)
+    matched = models.BooleanField(default= False)
 
     def __str__(self):
         return f"{self.user.username} registered for {self.event}"
