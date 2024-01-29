@@ -3,11 +3,10 @@
 {% extends 'box/base.html' %}
 {% load static custom_filters %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'box/css/events_list.css' %}">
-
 {% block title %}Upcoming Boxing Events{% endblock %}
 
 {% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'box/css/events_list.css' %}">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2 style="margin-top: 70px;">Upcoming Boxing Events</h2>
         

@@ -40,9 +40,16 @@ def event_detail(request, event_id):
     registrations = EventRegistration.objects.filter(event=event)
     return render(request, 'box/event_detail.html', {'event': event})
 
+@login_required
+def event_registration_confirmation(request, event_id):
+    event = get_object_or_404(BoxingEvent, id=event_id)
+    register_event(request, event_id)
+    return render(request, 'box/event_registration_confirmation.html', {'event': event})
+
 def register_event(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    print("hhohohohoh")
 
     max_fights = 6
     current_fights_count = EventFight.objects.filter(event=event).count()
@@ -52,22 +59,20 @@ def register_event(request, event_id):
 
     if request.method == "POST":
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
-        if profile_form.is_valid():
-            profile_form.save()
-
-            existing_registration = EventRegistration.objects.filter(user=request.user, event=event)
-            if existing_registration.exists():
-                messages.warning(request, "You are already registered for this event.")
-                return redirect('box:events_list')
-            
-            registration = EventRegistration(user=request.user, event=event)
-            registration.save()
-
-            matching_user = find_matching_user(request.user, event)
-            if matching_user:
-                create_fight(request.user, matching_user, event)
-                return redirect('box:event_detail', event_id=event.id) ### Need to send email to user to notify an opponent is found. Then on the event it must be on the event details where his name and opponent is alongside with othe oppponents ###
+        
+        existing_registration = EventRegistration.objects.filter(user=request.user, event=event)
+        if existing_registration.exists():
+            messages.warning(request, "You are already registered for this event.")
             return redirect('box:events_list')
+            
+        registration = EventRegistration(user=request.user, event=event)
+        registration.save()
+
+        matching_user = find_matching_user(request.user, event)
+        if matching_user:
+            create_fight(request.user, matching_user, event)
+            return redirect('box:event_detail', event_id=event.id) ### Need to send email to user to notify an opponent is found. Then on the event it must be on the event details where his name and opponent is alongside with othe oppponents ###
+        return redirect('box:events_list')
     else:
         profile_form = UserProfileForm(instance=user_profile)
    
@@ -84,16 +89,16 @@ def create_fight(user1, user2, event):
     return event_fight
 
 def find_matching_user(current_user, event):
-    current_user_profile = current_user.profile
+    current_user_profile = current_user.userprofile
 
     if calculate_points(current_user_profile) == 0: ### for new boxers ###
-        zero_points_user = event.registered_users.filter(profile__wins=0, profile__draws=0, profile__losses=0, profile__weight__range=(current_user_profile.weight - 1, current_user_profile.weight + 1)).exclude(id=current_user.id)
+        zero_points_user = event.registered_users.filter(userprofile__wins=0, userprofile__draws=0, userprofile__losses=0, userprofile__weight__range=(current_user_profile.weight - 1, current_user_profile.weight + 1)).exclude(id=current_user.id)
         if zero_points_user.exists():
             return zero_points_user.first()
 
     for registered_user in event.registered_users.all(): ### for boxers who has fought before ###
         if registered_user != current_user:
-            registered_user_profile = registered_user.profile
+            registered_user_profile = registered_user.userprofile
             current_user_points = calculate_points(current_user_profile)
             registered_user_points = calculate_points(registered_user_profile)
 
@@ -136,3 +141,8 @@ def edit_event(request,event_id):
         form = EventForm(instance=event)
         
     return render(request, 'box/edit_event.html', {'form': form, 'event': event})
+
+def delete_event(request, event_id):
+    event = get_object_or_404(BoxingEvent,id=event_id)
+    event.delete()
+    return redirect('box:manage_events')

@@ -1,22 +1,29 @@
+<title>Event Detail</title>
+
 {% extends 'box/base.html' %}
+{% load static %}
 
 {% block content %}
-    <h2>{{ event.date }} - {{ event.location }}</h2>
+    <link rel="stylesheet" type="text/css" href="{% static 'box/css/event_detail.css' %}">
 
-    <!-- Display all fights for the event -->
-    {% if event.fights.all %}
-        <ul>
-            {% for fight in event.fights.all %}
-                <li>{{ fight.red_boxer }} VS {{ fight.blue_boxer }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No fights scheduled for this event.</p>
-    {% endif %}
+    <div class="event-details-container">
+        <h2>{{ event.date }} - {{ event.location }}</h2>
 
-    <!-- Register button to find an opponent -->
-    <form method="post" action="{% url 'register_event' event.id %}">
-        {% csrf_token %}
-        <button type="submit">Register</button>
-    </form>
+        <!-- Display all fights for the event -->
+        {% if event.fights.all %}
+            <ul class="event-fights-list">
+                {% for fight in event.fights.all %}
+                    <li class="event-fight-item">{{ fight.red_boxer }} VS {{ fight.blue_boxer }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No fights scheduled for this event.</p>
+        {% endif %}
+
+        <!-- Register button to find an opponent -->
+        <form method="post" action="{% url 'box:event_registration_confirmation' event.id %}">
+            {% csrf_token %}
+            <button type="submit" class="register-button">Register</button>
+        </form>
+    </div>
 {% endblock %}

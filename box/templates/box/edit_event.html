@@ -10,4 +10,8 @@
     {{ form.as_p }}
     <button type="submit">Update Event</button>
   </form>
+  <form method="post" action="{% url 'box:delete_event' event_id=event.id %}" style="margin-top: 20px;">
+    {% csrf_token %}
+    <button type="submit" style="color: red;">Delete Event</button>
+  </form>
 {% endblock %}

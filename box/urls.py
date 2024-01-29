@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import HomePage, update_profile, event_detail, events_list,events_management,edit_event,create_event
-
+from .views import HomePage, update_profile, event_detail, events_list,events_management,edit_event,create_event,delete_event,event_registration_confirmation
 app_name = "box"
 
 urlpatterns = [
@@ -11,4 +10,6 @@ urlpatterns = [
     path('manage-events/', events_management, name='manage_events'),
     path('edit-event/<int:event_id>/', edit_event, name='edit_event'),
     path('create-event/', create_event, name='create_event'),
-]
+    path('delete-event/<int:event_id>/', delete_event, name='delete_event'),
+    path('events/<int:event_id>/register/confirmation/', event_registration_confirmation, name='event_registration_confirmation'),
+    ]

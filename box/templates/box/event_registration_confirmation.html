@@ -1,0 +1,15 @@
+<title>Confirmation</title>
+
+{% extends 'box/base.html' %}
+{% load static %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'box/css/event_registration_confirmation.css' %}">
+
+    <div class="registration-confirmation-container">
+        <h2>Registration Confirmation</h2>
+
+        <p>You have successfully registered for the event on {{ event.date }} at {{ event.location }}.</p>
+        <p>We are now finding an opponent for you. Please check back later for more details.</p>
+    </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+/* events_detail.css */
+
+.event-details-container {
+    max-width: 600px;
+    margin-top: 70px;
+    padding: 20px;
+}
+
+.event-details-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.event-fights-list {
+    list-style: none;
+    padding: 0;
+}
+
+.event-fight-item {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.register-button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+.register-button:hover {
+    background-color: #2980b9;
+}
