@@ -30,12 +30,15 @@ class UserProfile(models.Model):
     
     def is_organiser(self):
         return self.user.groups.filter(name='organiser').exists()
+    
+    @property
+    def is_registered_for_event(self):
+        return EventRegistration.objects.filter(user=self.user, matched=True).exists()    
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
-
 
 
 class BoxingEvent(models.Model):

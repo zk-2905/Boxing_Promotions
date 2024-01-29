@@ -38,6 +38,8 @@ def events_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     registrations = EventRegistration.objects.filter(event=event)
+    if EventRegistration.objects.filter(user=request.user, event=event, matched=True).exists():
+        return redirect('box:already_registered')
     return render(request, 'box/event_detail.html', {'event': event})
 
 @login_required
@@ -45,6 +47,9 @@ def event_registration_confirmation(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     register_event(request, event_id)
     return render(request, 'box/event_registration_confirmation.html', {'event': event})
+
+def already_registered(request):
+    return render(request, 'box/already_registered.html')
 
 def register_event(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
@@ -59,11 +64,6 @@ def register_event(request, event_id):
     if request.method == "POST":
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         
-        existing_registration = EventRegistration.objects.filter(user=request.user, event=event)
-        if existing_registration.exists():
-            messages.warning(request, "You are already registered for this event.")
-            return redirect('box:events_list')
-            
         registration = EventRegistration(user=request.user, event=event)
         registration.save()
 

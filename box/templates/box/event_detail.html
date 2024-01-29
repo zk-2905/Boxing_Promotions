@@ -19,7 +19,6 @@
         {% else %}
             <p>No fights scheduled for this event.</p>
         {% endif %}
-
         <!-- Register button to find an opponent -->
         <form method="post" action="{% url 'box:event_registration_confirmation' event.id %}">
             {% csrf_token %}
