@@ -99,30 +99,22 @@ def find_matching_user(current_user, event):
             user1 = users[i]
             if user1 in matched_users:
                 continue
-
-            if user1['points'] == 0:
-                for j in range(i+1, len(users)):
-                    user2 = users[j]
-            
-                # Check if user2 is already matched
+            for j in range(i+1, len(users)):
+                user2 = users[j]
                 if user2 in matched_users:
                     continue
-
-                if user2['points'] == 0:
-                    matched_users.add(user1)
-                    matched_users.add(user2)
-                    break 
-            else:
-                for j in range(i+1, len(users)):
-                    user2 = users[j]
-                    if user2 in matched_users:
-                        continue
-
-                    points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
-                    if points_difference <= 5:
+                if user1 in matched_users:
+                    continue
+                if calculate_points(user1.userprofile) == 0:
+                    if calculate_points(user2.userprofile) == 0:
                         matches.append((user1, user2))
                         matched_users.add(user1)
                         matched_users.add(user2)
+                points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
+                if points_difference <= 5:
+                    matches.append((user1, user2))
+                    matched_users.add(user1)
+                    matched_users.add(user2)
     return matches
 
 def calculate_points(user_profile):
