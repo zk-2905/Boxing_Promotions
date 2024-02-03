@@ -3,6 +3,7 @@ from django.contrib.auth.admin import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import Group, Permission
+from datetime import timedelta, date
 
 def create_organiser_group():
     organiser_group, created = Group.objects.get_or_create(name='organiser')
@@ -50,6 +51,9 @@ class BoxingEvent(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.date} - {self.location}"
+    
+    def is_event_completed(self):
+        return date.today() > self.date + timedelta(days=1)
 
 class Fight(models.Model):
     red_boxer = models.ForeignKey(User, related_name='red_boxer', on_delete=models.CASCADE)

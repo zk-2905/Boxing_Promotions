@@ -1,0 +1,41 @@
+<title>My Events</title>
+
+{% extends 'box/base.html' %}
+{% load static %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'box/css/my_events.css' %}">
+
+    <h2>Events - Searching for an Opponent</h2>
+    {% if searching_for_opponent %}
+        <ul>
+        {% for event in searching_for_opponent %}
+            <li>{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No events are currently in the searching phase.</p>
+    {% endif %}
+
+    <h2>Events - Matched an Opponent</h2>
+    {% if matched_opponent %}
+        <ul>
+        {% for event in matched_opponent %}
+            <li>{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No events where you've matched an opponent.</p>
+    {% endif %}
+
+    <h2>Events - Event Completed</h2>
+    {% if event_completed %}
+        <ul>
+        {% for event in event_completed %}
+            <li>{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No completed events.</p>
+    {% endif %}
+{% endblock %}

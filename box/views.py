@@ -38,13 +38,13 @@ def events_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     registrations = EventRegistration.objects.filter(event=event)
-    if EventRegistration.objects.filter(user=request.user, event=event, matched=True).exists():
-        return redirect('box:already_registered')
     return render(request, 'box/event_detail.html', {'event': event})
 
 @login_required
 def event_registration_confirmation(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
+    if EventRegistration.objects.filter(user=request.user, event=event, matched=True).exists():
+        return redirect('box:already_registered')
     register_event(request, event_id)
     return render(request, 'box/event_registration_confirmation.html', {'event': event})
 
@@ -150,3 +150,26 @@ def delete_event(request, event_id):
     event = get_object_or_404(BoxingEvent,id=event_id)
     event.delete()
     return redirect('box:manage_events')
+
+@login_required
+def my_events(request):
+    user_registrations = EventRegistration.objects.filter(user=request.user)
+    searching_for_opponent =[]
+    matched_opponent = []
+    event_complete = []
+    for registration in user_registrations:
+        event = registration.event
+        if not event.is_event_completed():
+            if not registration.matched:
+                searching_for_opponent.append(event)
+            else:
+                matched_opponent.append(event)
+        else:
+            event_complete.append(event)
+    
+    context = {
+        'searching_for_opponent': searching_for_opponent,
+        'matched_opponent': matched_opponent,
+        'event_completed': event_complete,
+    }
+    return render(request, 'box/my_events.html', context)
