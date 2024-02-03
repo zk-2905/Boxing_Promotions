@@ -66,6 +66,9 @@ class EventFight(models.Model):
     event = models.ForeignKey(BoxingEvent, on_delete=models.CASCADE)
     fight = models.ForeignKey(Fight, on_delete=models.CASCADE)
     order = models.PositiveIntegerField()
+    red_boxer_result = models.CharField(max_length= 10, blank = True, null = True, choices=[('win','Win'),('loss','Loss'),('draw','Draw')])
+    blue_boxer_result = models.CharField(max_length= 10, blank = True, null = True, choices=[('win','Win'),('loss','Loss'),('draw','Draw')])
+
 
     class Meta:
         unique_together = ('event', 'order')

@@ -1,0 +1,54 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    margin-top: 70px;
+}
+
+form {
+    margin-top: 20px;
+}
+
+.match-result {
+    display: none;
+    margin-bottom: 10px;
+}
+
+/* Style for match result labels */
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Style for match result select elements */
+select {
+    margin-bottom: 10px;
+}
+
+/* Style for the "Update Event" button */
+button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Style for the "Delete Event" button */
+.delete-button {
+    padding: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #d32f2f;
+}

@@ -140,11 +140,27 @@ def edit_event(request,event_id):
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
             form.save()
+            if event.date == datetime.date.today():
+                update_match_results(request, event)
+                update_user_records_from_results(event, get_event_results(event))
             return redirect('box:manage_events')
     else:
         form = EventForm(instance=event)
         
     return render(request, 'box/edit_event.html', {'form': form, 'event': event})
+
+
+def update_match_results(request, event):
+    for event_fight in event.eventfight_set.all():
+        red_result = request.POST.get(f"red_result_{event_fight.id}")
+        blue_result = request.POST.get(f"blue_result_{event_fight.id}")
+
+        event_fight.red_boxer_result = red_result
+        event_fight.blue_boxer_result = blue_result
+        event_fight.save()
+
+
+
 
 def delete_event(request, event_id):
     event = get_object_or_404(BoxingEvent,id=event_id)
@@ -165,7 +181,10 @@ def my_events(request):
             else:
                 matched_opponent.append(event)
         else:
-            event_complete.append(event)
+            event_complete.append({
+                'event':event,
+                'results': get_event_results(event),
+            })
     
     context = {
         'searching_for_opponent': searching_for_opponent,
@@ -173,3 +192,38 @@ def my_events(request):
         'event_completed': event_complete,
     }
     return render(request, 'box/my_events.html', context)
+
+
+def get_event_results(event):
+    results = []
+    for event_fight in event.eventfight_set.all():
+        results.append({
+            'red_boxer':  event_fight.fight.red_boxer,
+            'blue_boxer': event_fight.fight.blue_boxer,
+            'red_result': event_fight.red_boxer_result,
+            'blue_result': event_fight.blue_boxer_result,
+        })
+    return results
+
+@transaction.atomic
+def update_user_records_from_results(event, results):
+    for event_fight,result in zip(event.eventfight_set.all(), results):
+        red_boxer = event_fight.fight.red_boxer
+        blue_boxer = event_fight.fight.blue_boxer
+
+        if result['red_result'] == 'win':
+            red_boxer.userprofile.wins += 1
+        elif result['red_result'] == 'loss':
+            red_boxer.userprofile.losses += 1
+        elif result['red_boxer'] == 'draw':
+            red_boxer.userprofile.draws += 1
+
+        if result['blue_result'] == 'win':
+            blue_boxer.userprofile.wins += 1
+        elif result['blue_result'] == 'loss':
+            blue_boxer.userprofile.losses += 1
+        elif result['blue_boxer'] == 'draw':
+            blue_boxer.userprofile.draws += 1
+
+        red_boxer.userprofile.save()
+        blue_boxer.userprofile.save()

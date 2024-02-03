@@ -31,8 +31,15 @@
     <h2>Events - Event Completed</h2>
     {% if event_completed %}
         <ul>
-        {% for event in event_completed %}
-            <li>{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
+        {% for event_data in event_completed %}
+            <li>
+                {{ event_data.event.title }} - {{ event_data.event.date }} - {{ event_data.event.location }}
+                <ul>
+                    {% for result in event_data.results %}
+                        <li>{{ result.red_boxer.username }} vs {{ result.blue_boxer.username }} - Result: {{ result.red_result }} - {{ result.blue_result }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
         {% endfor %}
         </ul>
     {% else %}
