@@ -5,6 +5,8 @@ from django.contrib import messages
 from .forms import UserForm, UserProfileForm, EventForm
 from .models import UserProfile, BoxingEvent, EventRegistration, EventFight, Fight
 import datetime
+from datetime import timezone
+
 
 def HomePage(request):
     return render(request,'box/home.html')
@@ -43,15 +45,13 @@ def event_detail(request, event_id):
 @login_required
 def event_registration_confirmation(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
+    registration = EventRegistration(user=request.user, event=event)
+    registration.save()
     if EventRegistration.objects.filter(user=request.user, event=event, matched=True).exists():
         return redirect('box:already_registered')
-    register_event(request, event_id)
     return render(request, 'box/event_registration_confirmation.html', {'event': event})
 
-def already_registered(request):
-    return render(request, 'box/already_registered.html')
-
-def register_event(request, event_id):
+def register_event(request, event_id, registration):
     event = get_object_or_404(BoxingEvent, id=event_id)
     user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
     
@@ -63,9 +63,6 @@ def register_event(request, event_id):
 
     if request.method == "POST":
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
-        
-        registration = EventRegistration(user=request.user, event=event)
-        registration.save()
 
         matching_user = find_matching_user(request.user, event)
         if matching_user:
@@ -81,6 +78,55 @@ def register_event(request, event_id):
         profile_form = UserProfileForm(instance=user_profile)
    
     return redirect('box:event_detail', event_id=event.id)
+def already_registered(request):
+    return render(request, 'box/already_registered.html')
+
+def find_matching_user(current_user, event):
+    weight_classes = {}
+    for user in user.registered_users.all():
+        weight = int(user.userprofile.weight)
+        weight_class = (weight // 1)
+        if weight_class not in weight_classes:
+            weight_classes[weight_class].append(user)
+
+    for users in weight_classes.values():
+        users.sort(key = lambda user: calculate_points(user.userprofile), reverse= True)
+    
+    matches = []
+    matched_users = set()
+    for weight_class, users in sorted(weight_classes.items(), reverse= True):
+        for i in range(len(users)):
+            user1 = users[i]
+            if user1 in matched_users:
+                continue
+
+            if user1['points'] == 0:
+                for j in range(i+1, len(users)):
+                    user2 = users[j]
+            
+                # Check if user2 is already matched
+                if user2 in matched_users:
+                    continue
+
+                if user2['points'] == 0:
+                    matched_users.add(user1)
+                    matched_users.add(user2)
+                    break 
+            else:
+                for j in range(i+1, len(users)):
+                    user2 = users[j]
+                    if user2 in matched_users:
+                        continue
+
+                    points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
+                    if points_difference <= 5:
+                        matches.append((user1, user2))
+                        matched_users.add(user1)
+                        matched_users.add(user2)
+    return matches
+
+def calculate_points(user_profile):
+    return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses
 
 def create_fight(user1, user2, event):
     max_fights = 6
@@ -91,26 +137,6 @@ def create_fight(user1, user2, event):
     order = current_fights_count + 1  # Increment the order for the new fight
     event_fight = EventFight.objects.create(event=event, fight=fight, order=order)
     return event_fight
-
-def find_matching_user(current_user, event):
-    current_user_profile = current_user.userprofile
-
-    if calculate_points(current_user_profile) == 0: ### for new boxers ###
-        zero_points_user = event.registered_users.filter(userprofile__wins=0, userprofile__draws=0, userprofile__losses=0, userprofile__weight__range=(current_user_profile.weight - 1, current_user_profile.weight + 1)).exclude(id=current_user.id).exclude(eventregistration__matched=True)
-        if zero_points_user.exists():
-            return zero_points_user.first()
-
-    for registered_user in event.registered_users.all(): ### for boxers who has fought before ###
-        if registered_user != current_user:
-            registered_user_profile = registered_user.userprofile
-            current_user_points = calculate_points(current_user_profile)
-            registered_user_points = calculate_points(registered_user_profile)
-
-            points_difference = abs(current_user_points - registered_user_points)
-            weight_difference = abs(current_user_profile.weight - registered_user_profile.weight)
-            if (points_difference >= 0 and points_difference <= 5 and weight_difference <= 1 and weight_difference >= -1 and not EventRegistration.objects.filter(user=registered_user, event=event, matched=True).exists()):
-                return registered_user
-    return None
 
 def events_management(request):
     events = BoxingEvent.objects.all()
@@ -129,8 +155,6 @@ def create_event(request):
     
     return render(request, 'box/create_event.html', {'form': form})
 
-def calculate_points(user_profile):
-    return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses
 
 @login_required
 def edit_event(request,event_id):
