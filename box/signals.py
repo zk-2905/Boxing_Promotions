@@ -11,10 +11,3 @@ def assign_organiser_role(sender, instance, created, **kwargs):
     if created and 'organiser' in instance.email:
         organiser_group = Group.objects.get(name='organiser')
         instance.groups.add(organiser_group)
-
-@receiver(post_save, sender=BoxingEvent)
-def schedule_event_registration(sender, instance, **kwargs):
-    previous_day = instance.date - timedelta(1)
-    today = datetime.date.today()
-    if previous_day == today:
-        register_event(instance.id)

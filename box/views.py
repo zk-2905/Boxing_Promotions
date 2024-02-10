@@ -45,9 +45,10 @@ def event_detail(request, event_id):
 def event_registration_confirmation(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     registration = EventRegistration(user=request.user, event=event)
-    registration.save()
-    if EventRegistration.objects.filter(user=request.user, event=event, matched=True).exists():
+    if EventRegistration.objects.filter(user=request.user, event=event, registered=True).exists():
         return redirect('box:already_registered')
+    registration.registered = True
+    registration.save()
     return render(request, 'box/event_registration_confirmation.html', {'event': event})
 
 def register_event(request, event_id):
@@ -65,6 +66,7 @@ def register_event(request, event_id):
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
 
         matches = find_matches(request.user, event)
+        #print(matches)
         if matches:
             create_fight(matches, event)
             update_not_matched_counters(event)
@@ -85,11 +87,11 @@ def find_matches(current_user, event):
         weight_class = (weight // 1)
         if weight_class not in weight_classes:
             weight_classes[weight_class] = []
-            weight_classes[weight_class].append(user)
+        weight_classes[weight_class].append(user)
 
     for users in weight_classes.values():
-        users.sort(key = lambda user: (-user_registration.not_matched_counter, -calculate_points(user.userprofile)), reverse= True)
-    
+        users.sort(key = lambda user: (user.userprofile.not_matched_counter, calculate_points(user.userprofile)), reverse= True)
+    print(weight_classes)
     matches = []
     matched_users = set()
     for weight_class, users in sorted(weight_classes.items(), reverse= True):
@@ -99,9 +101,7 @@ def find_matches(current_user, event):
                 continue
             for j in range(i+1, len(users)):
                 user2 = users[j]
-                if user2 in matched_users:
-                    continue
-                if user1 in matched_users:
+                if user2 in matched_users or user1 in matched_users or user1 == user2:
                     continue
                 if calculate_points(user1.userprofile) == 0:
                     if calculate_points(user2.userprofile) == 0:
@@ -111,25 +111,27 @@ def find_matches(current_user, event):
                         reset_user_not_matched_counter(user1, event)
                         reset_user_not_matched_counter(user2, event)
                 points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
-                if points_difference <= 5 and points_difference >= -5:
+                if user1 not in matched_users and user2 not in matched_users and points_difference <= 5 and points_difference >= -5:
                     matches.append((user1, user2))
                     matched_users.add(user1)
                     matched_users.add(user2)
                     reset_user_not_matched_counter(user1, event)
                     reset_user_not_matched_counter(user2, event)
+
     return matches
 
 
 def reset_user_not_matched_counter(user, event):
-    registration = EventRegistration.objects.get(user=user, event=event)
+    registration = UserProfile.objects.get(user=user)
     registration.not_matched_counter = 0
     registration.save()
 
 def update_not_matched_counters(event):
     not_matched_users = EventRegistration.objects.filter(event=event, matched=False)
     for registration in not_matched_users:
-        registration.not_matched_counter += 1
-        registration.save()
+        user_profile = registration.user.userprofile
+        user_profile.not_matched_counter += 1
+        user_profile.save()
 
 def calculate_points(user_profile):
     return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses

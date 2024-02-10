@@ -20,11 +20,12 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     age = models.IntegerField(null=True, blank=True)
     nickname = models.CharField(max_length=100, null=True, blank=True)
-    weight = models.IntegerField(null=True, blank=True)
+    weight = models.FloatField(null=True, blank=True)
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     draws = models.IntegerField(default=0)
     profile_picture = models.ImageField(null=True, blank=True, upload_to="images/")
+    not_matched_counter = models.IntegerField(default= 0)
 
     def __str__(self):
         return self.user.username
@@ -83,8 +84,9 @@ class EventFight(models.Model):
 class EventRegistration(models.Model):
     user = models.ForeignKey(User,null =True, on_delete=models.CASCADE)
     event = models.ForeignKey(BoxingEvent, on_delete=models.CASCADE)
+    registered = models.BooleanField(default= False)
     matched = models.BooleanField(default= False)
-    not_matched_counter = models.IntegerField(default= 0)
+    
 
     def __str__(self):
         return f"{self.user.username} registered for {self.event}"
