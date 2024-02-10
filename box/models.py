@@ -54,6 +54,9 @@ class BoxingEvent(models.Model):
     
     def is_event_completed(self):
         return date.today() > self.date + timedelta(days=1)
+    
+    def get_date(self):
+        return self.date
 
 class Fight(models.Model):
     red_boxer = models.ForeignKey(User, related_name='red_boxer', on_delete=models.CASCADE)
@@ -81,6 +84,7 @@ class EventRegistration(models.Model):
     user = models.ForeignKey(User,null =True, on_delete=models.CASCADE)
     event = models.ForeignKey(BoxingEvent, on_delete=models.CASCADE)
     matched = models.BooleanField(default= False)
+    not_matched_counter = models.IntegerField(default= 0)
 
     def __str__(self):
         return f"{self.user.username} registered for {self.event}"

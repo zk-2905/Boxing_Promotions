@@ -11,7 +11,7 @@
     {% csrf_token %}
     {{ form.as_p }}
 
-    {% if event.date == today %}
+    {% if match_results_allowed %}
       <!-- Add match result input fields for each fight -->
       {% for event_fight in event.eventfight_set.all %}
         <div class="match-result">
@@ -36,13 +36,18 @@
 
     <button type="submit">Update Event</button>
   </form>
-
-  {% if event.date != today %}
+  {% if not match_results_allowed %}
     <p>Match results can only be input on the day of the event.</p>
   {% endif %}
 
   <form method="post" action="{% url 'box:delete_event' event_id=event.id %}" style="margin-top: 20px;">
     {% csrf_token %}
     <button type="submit" class="delete-button">Delete Event</button>
+  </form>
+
+  <!-- Add button to register for event -->
+  <form method="post" action="{% url 'box:register_event' event_id=event.id %}" style="margin-top: 20px;">
+    {% csrf_token %}
+    <button type="submit" class="match-button">Match Boxers</button>
   </form>
 {% endblock %}

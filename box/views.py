@@ -5,7 +5,6 @@ from django.contrib import messages
 from .forms import UserForm, UserProfileForm, EventForm
 from .models import UserProfile, BoxingEvent, EventRegistration, EventFight, Fight
 import datetime
-from datetime import timezone
 
 
 def HomePage(request):
@@ -51,9 +50,10 @@ def event_registration_confirmation(request, event_id):
         return redirect('box:already_registered')
     return render(request, 'box/event_registration_confirmation.html', {'event': event})
 
-def register_event(request, event_id, registration):
+def register_event(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    registration = EventRegistration(user=request.user, event=event)
     
     max_fights = 6
     current_fights_count = EventFight.objects.filter(event=event).count()
@@ -64,14 +64,10 @@ def register_event(request, event_id, registration):
     if request.method == "POST":
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
 
-        matching_user = find_matching_user(request.user, event)
-        if matching_user:
-            create_fight(request.user, matching_user, event)
-            registration.matched = True  ### shows that the user and matched user are matched and can't be matched by another ###
-            registration.save()
-            matching_registration = EventRegistration.objects.get(user= matching_user, event=event)
-            matching_registration.matched = True
-            matching_registration.save()
+        matches = find_matches(request.user, event)
+        if matches:
+            create_fight(matches, event)
+            update_not_matched_counters(event)
             return redirect('box:event_detail', event_id=event.id) ### Need to send email to user to notify an opponent is found. Then on the event it must be on the event details where his name and opponent is alongside with othe oppponents ###
         return redirect('box:events_list')
     else:
@@ -81,16 +77,18 @@ def register_event(request, event_id, registration):
 def already_registered(request):
     return render(request, 'box/already_registered.html')
 
-def find_matching_user(current_user, event):
+def find_matches(current_user, event):
     weight_classes = {}
-    for user in user.registered_users.all():
+    for user_registration in EventRegistration.objects.filter(event=event, matched=False):
+        user = user_registration.user
         weight = int(user.userprofile.weight)
         weight_class = (weight // 1)
         if weight_class not in weight_classes:
+            weight_classes[weight_class] = []
             weight_classes[weight_class].append(user)
 
     for users in weight_classes.values():
-        users.sort(key = lambda user: calculate_points(user.userprofile), reverse= True)
+        users.sort(key = lambda user: (-user_registration.not_matched_counter, -calculate_points(user.userprofile)), reverse= True)
     
     matches = []
     matched_users = set()
@@ -110,24 +108,51 @@ def find_matching_user(current_user, event):
                         matches.append((user1, user2))
                         matched_users.add(user1)
                         matched_users.add(user2)
+                        reset_user_not_matched_counter(user1, event)
+                        reset_user_not_matched_counter(user2, event)
                 points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
-                if points_difference <= 5:
+                if points_difference <= 5 and points_difference >= -5:
                     matches.append((user1, user2))
                     matched_users.add(user1)
                     matched_users.add(user2)
+                    reset_user_not_matched_counter(user1, event)
+                    reset_user_not_matched_counter(user2, event)
     return matches
+
+
+def reset_user_not_matched_counter(user, event):
+    registration = EventRegistration.objects.get(user=user, event=event)
+    registration.not_matched_counter = 0
+    registration.save()
+
+def update_not_matched_counters(event):
+    not_matched_users = EventRegistration.objects.filter(event=event, matched=False)
+    for registration in not_matched_users:
+        registration.not_matched_counter += 1
+        registration.save()
 
 def calculate_points(user_profile):
     return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses
 
-def create_fight(user1, user2, event):
+def create_fight(matches, event):
     max_fights = 6
     current_fights_count = EventFight.objects.filter(event=event).count()
     if current_fights_count >= max_fights:
         return  # Don't create a new fight if the limit has been reached
-    fight = Fight.objects.create(red_boxer=user1, blue_boxer=user2)
-    order = current_fights_count + 1  # Increment the order for the new fight
-    event_fight = EventFight.objects.create(event=event, fight=fight, order=order)
+    
+    for i, (user1, user2) in enumerate(matches):
+        order = current_fights_count + i + 1  # Increment the order for the new fight
+        fight = Fight.objects.create(red_boxer=user1, blue_boxer=user2)
+        event_fight = EventFight.objects.create(event=event, fight=fight, order=order)
+    
+    registration_user1 = EventRegistration.objects.get(user=user1, event=event)
+    registration_user1.matched = True
+    registration_user1.save()
+
+    registration_user2 = EventRegistration.objects.get(user=user2, event=event)
+    registration_user2.matched = True
+    registration_user2.save()
+
     return event_fight
 
 def events_management(request):
@@ -151,19 +176,26 @@ def create_event(request):
 @login_required
 def edit_event(request,event_id):
     event = get_object_or_404(BoxingEvent,id=event_id)
-
+    today = datetime.date.today()
     if request.method == 'POST':
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
             form.save()
-            if event.date == datetime.date.today():
-                update_match_results(request, event)
-                update_user_records_from_results(event, get_event_results(event))
-            return redirect('box:manage_events')
+        if event.date == today:
+            update_match_results(request, event)
+            update_user_records_from_results(event, get_event_results(event))
+        return redirect('box:manage_events')
     else:
         form = EventForm(instance=event)
+
+    match_results_allowed = (event.date == today)
+    context = {
+        'form': form,
+        'event': event,
+        'match_results_allowed': match_results_allowed,
+    }
         
-    return render(request, 'box/edit_event.html', {'form': form, 'event': event})
+    return render(request, 'box/edit_event.html', context)
 
 
 def update_match_results(request, event):

@@ -11,7 +11,7 @@ form {
 }
 
 .match-result {
-    display: none;
+    display: block;
     margin-bottom: 10px;
 }
 
@@ -51,4 +51,17 @@ button:hover {
 
 .delete-button:hover {
     background-color: #d32f2f;
+}
+
+/* Style for the "Match Boxers" button */
+.match-button {
+    padding: 10px;
+    background-color: #3c36f4;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.match-button:hover {
+    background-color: #161372;
 }
