@@ -1,13 +1,17 @@
 <title>Create Event</title>
 
 {% extends 'box/base.html' %}
+{% load static %}
 
 {% block content %}
-  <h2 style="margin-top: 70px;">Create Event</h2>
+  <link rel="stylesheet" type="text/css" href="{% static 'box/css/create_event.css' %}">
+  <div class="create-event-container">
+    <h2>Create Event</h2>
 
-  <form method="post" action="{% url 'box:create_event' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Create Event</button>
-  </form>
+    <form method="post" action="{% url 'box:create_event' %}" class="event-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="create-event-button">Create Event</button>
+    </form>
+  </div>
 {% endblock %}

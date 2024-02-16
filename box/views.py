@@ -191,7 +191,7 @@ def edit_event(request,event_id):
             form.save()
         if event.date == today:
             update_match_results(request, event)
-            update_user_records_from_results(event, get_event_results(event))
+            update_user_records_from_results(event, get_event_results(request,event))
         return redirect('box:manage_events')
     else:
         form = EventForm(instance=event)
@@ -214,9 +214,6 @@ def update_match_results(request, event):
         event_fight.red_boxer_result = red_result
         event_fight.blue_boxer_result = blue_result
         event_fight.save()
-
-
-
 
 def delete_event(request, event_id):
     event = get_object_or_404(BoxingEvent,id=event_id)

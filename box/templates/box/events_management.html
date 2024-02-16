@@ -1,19 +1,29 @@
 <title>Manage Events</title>
+
 {% extends 'box/base.html' %}
+{% load static %}
 
 {% block content %}
+  <link rel="stylesheet" type="text/css" href="{% static 'box/css/events_management.css' %}">
+  <div class="events-management-container">
+      <h2 style="margin-top: 70px;">Manage Events</h2>
 
-  <h2 style="margin-top: 70px;">Manage Events</h2>
+      <a class="create-event-button" href="{% url 'box:create_event' %}">Create Event</a>
 
-  <a style="margin-top: 50px;" href="{% url 'box:create_event' %}">Create Event</a>
-
-  <ul>
-    {% for event in events %}
-      <li>
-        {{ event.title }} - {{ event.date }} - {{ event.location }}
-        <a href="{% url 'box:edit_event' event_id=event.id %}">Edit</a>
-        <!-- Add a delete button here if needed -->
-      </li>
-    {% endfor %}
-  </ul>
+      <ul class="events-list">
+          {% for event in events %}
+          <li class="event-item">
+              <div class="event-details">
+                  <span class="event-title">{{ event.title }}</span>
+                  <span class="event-date">Date: {{ event.date }}</span>
+                  <span class="event-location">Location: {{ event.location }}</span>
+              </div>
+              <div class="event-actions">
+                  <a href="{% url 'box:edit_event' event_id=event.id %}" class="edit-event-button">Edit</a>
+                  <!-- Add a delete button here if needed -->
+              </div>
+          </li>
+          {% endfor %}
+      </ul>
+  </div>
 {% endblock %}

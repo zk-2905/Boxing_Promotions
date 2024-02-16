@@ -1,67 +1,49 @@
-body {
-    font-family: Arial, sans-serif;
-}
-
-h2 {
-    margin-top: 70px;
-}
-
-form {
-    margin-top: 20px;
-}
-
-.match-result {
-    display: block;
-    margin-bottom: 10px;
-}
-
-/* Style for match result labels */
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-/* Style for match result select elements */
-select {
-    margin-bottom: 10px;
-}
-
-/* Style for the "Update Event" button */
-button {
-    padding: 10px;
+.edit-event-container {
+    max-width: 600px;
+    margin: 70px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .notification {
+    margin-bottom: 20px;
+    color: #FF5733; /* Red color for notification */
+  }
+  
+  button {
+    padding: 10px 20px;
+    margin-top: 10px;
     background-color: #4CAF50;
-    color: white;
+    color: #fff;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
-}
-
-button:hover {
+  }
+  
+  button:hover {
     background-color: #45a049;
-}
-
-/* Style for the "Delete Event" button */
-.delete-button {
-    padding: 10px;
-    background-color: #f44336;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.delete-button:hover {
-    background-color: #d32f2f;
-}
-
-/* Style for the "Match Boxers" button */
-.match-button {
-    padding: 10px;
-    background-color: #3c36f4;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.match-button:hover {
-    background-color: #161372;
-}
+  }
+  
+  .delete-button {
+    background-color: #f44336; /* Red color for delete button */
+  }
+  
+  .delete-button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+  }
+  
+  .match-button {
+    background-color: #3c36f4; /* Blue color for match button */
+  }
+  
+  .match-button:hover {
+    background-color: #161372; /* Darker blue on hover */
+  }
+  
