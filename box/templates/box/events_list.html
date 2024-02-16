@@ -18,9 +18,9 @@
     </div>
 
     {% if events %}
-        <ul>
+        <ul class="event-fights-list">
             {% for event in events %}
-                <li>
+                <li class="event-fight-item">
                     <h3>{{ event.title }} - {{ event.date }} - {{ event.location }}</h3>
                     <a href="{% url 'box:event_detail' event_id=event.id %}">View Details</a>
                 </li>

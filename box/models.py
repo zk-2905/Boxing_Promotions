@@ -54,7 +54,7 @@ class BoxingEvent(models.Model):
         return f"{self.title} - {self.date} - {self.location}"
     
     def is_event_completed(self):
-        return date.today() > self.date + timedelta(days=1)
+        return date.today() >= self.date
     
     def get_date(self):
         return self.date
@@ -69,7 +69,7 @@ class Fight(models.Model):
 class EventFight(models.Model):
     event = models.ForeignKey(BoxingEvent, on_delete=models.CASCADE)
     fight = models.ForeignKey(Fight, on_delete=models.CASCADE)
-    order = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(null= True, blank= True)
     red_boxer_result = models.CharField(max_length= 10, blank = True, null = True, choices=[('win','Win'),('loss','Loss'),('draw','Draw')])
     blue_boxer_result = models.CharField(max_length= 10, blank = True, null = True, choices=[('win','Win'),('loss','Loss'),('draw','Draw')])
 

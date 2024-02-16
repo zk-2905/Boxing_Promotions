@@ -39,7 +39,14 @@ def events_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(BoxingEvent, id=event_id)
     registrations = EventRegistration.objects.filter(event=event)
-    return render(request, 'box/event_detail.html', {'event': event})
+
+    one_day_before_event = datetime.date.today() >= (event.date - datetime.timedelta(days=1))
+    context = {
+        'event': event,
+        'registrations': registrations,
+        'one_day_before_event': one_day_before_event,
+    }
+    return render(request, 'box/event_detail.html', context)
 
 @login_required
 def event_registration_confirmation(request, event_id):
@@ -66,7 +73,6 @@ def register_event(request, event_id):
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
 
         matches = find_matches(request.user, event)
-        #print(matches)
         if matches:
             create_fight(matches, event)
             update_not_matched_counters(event)
@@ -91,13 +97,14 @@ def find_matches(current_user, event):
 
     for users in weight_classes.values():
         users.sort(key = lambda user: (user.userprofile.not_matched_counter, calculate_points(user.userprofile)), reverse= True)
-    print(weight_classes)
     matches = []
     matched_users = set()
+    max_fights_per_class = 6
     for weight_class, users in sorted(weight_classes.items(), reverse= True):
+        fights_created = 0
         for i in range(len(users)):
             user1 = users[i]
-            if user1 in matched_users:
+            if user1 in matched_users or fights_created == max_fights_per_class:
                 continue
             for j in range(i+1, len(users)):
                 user2 = users[j]
@@ -110,6 +117,7 @@ def find_matches(current_user, event):
                         matched_users.add(user2)
                         reset_user_not_matched_counter(user1, event)
                         reset_user_not_matched_counter(user2, event)
+                        fights_created += 1
                 points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
                 if user1 not in matched_users and user2 not in matched_users and points_difference <= 5 and points_difference >= -5:
                     matches.append((user1, user2))
@@ -117,6 +125,7 @@ def find_matches(current_user, event):
                     matched_users.add(user2)
                     reset_user_not_matched_counter(user1, event)
                     reset_user_not_matched_counter(user2, event)
+                    fights_created += 1
 
     return matches
 
@@ -137,23 +146,20 @@ def calculate_points(user_profile):
     return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses
 
 def create_fight(matches, event):
-    max_fights = 6
     current_fights_count = EventFight.objects.filter(event=event).count()
-    if current_fights_count >= max_fights:
-        return  # Don't create a new fight if the limit has been reached
     
     for i, (user1, user2) in enumerate(matches):
         order = current_fights_count + i + 1  # Increment the order for the new fight
         fight = Fight.objects.create(red_boxer=user1, blue_boxer=user2)
         event_fight = EventFight.objects.create(event=event, fight=fight, order=order)
     
-    registration_user1 = EventRegistration.objects.get(user=user1, event=event)
-    registration_user1.matched = True
-    registration_user1.save()
+        registration_user1 = EventRegistration.objects.get(user=user1, event=event)
+        registration_user1.matched = True
+        registration_user1.save()
 
-    registration_user2 = EventRegistration.objects.get(user=user2, event=event)
-    registration_user2.matched = True
-    registration_user2.save()
+        registration_user2 = EventRegistration.objects.get(user=user2, event=event)
+        registration_user2.matched = True
+        registration_user2.save()
 
     return event_fight
 
@@ -224,7 +230,9 @@ def my_events(request):
     matched_opponent = []
     event_complete = []
     for registration in user_registrations:
+        print(registration)
         event = registration.event
+        print(event)
         if not event.is_event_completed():
             if not registration.matched:
                 searching_for_opponent.append(event)
@@ -233,7 +241,7 @@ def my_events(request):
         else:
             event_complete.append({
                 'event':event,
-                'results': get_event_results(event),
+                'results': get_event_results(request, event),
             })
     
     context = {
@@ -244,9 +252,10 @@ def my_events(request):
     return render(request, 'box/my_events.html', context)
 
 
-def get_event_results(event):
+def get_event_results(request, event):
     results = []
-    for event_fight in event.eventfight_set.all():
+    current_user = request.user
+    for event_fight in event.eventfight_set.filter(fight__red_boxer=current_user) | event.eventfight_set.filter(fight__blue_boxer=current_user):
         results.append({
             'red_boxer':  event_fight.fight.red_boxer,
             'blue_boxer': event_fight.fight.blue_boxer,
