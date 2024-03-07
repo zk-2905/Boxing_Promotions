@@ -87,45 +87,58 @@ def already_registered(request):
 
 def find_matches(current_user, event):
     weight_classes = {}
+    weight_classes_amateurs = {}
+    weight_classes_professionals = {}
+
     for user_registration in EventRegistration.objects.filter(event=event, matched=False):
         user = user_registration.user
         weight = int(user.userprofile.weight)
         weight_class = (weight // 1)
+        if user.userprofile.boxer_type == 'amateur':
+            weight_classes = weight_classes_amateurs
+        else:
+            weight_classes = weight_classes_professionals
+        
         if weight_class not in weight_classes:
             weight_classes[weight_class] = []
         weight_classes[weight_class].append(user)
 
-    for users in weight_classes.values():
-        users.sort(key = lambda user: (user.userprofile.not_matched_counter, calculate_points(user.userprofile)), reverse= True)
+    for weight_classes in [weight_classes_amateurs, weight_classes_professionals]:
+        for users in weight_classes.values():
+            users.sort(key = lambda user: (user.userprofile.not_matched_counter, calculate_points(user.userprofile)), reverse= True)
+
     matches = []
     matched_users = set()
     max_fights_per_class = 6
-    for weight_class, users in sorted(weight_classes.items(), reverse= True):
-        fights_created = 0
-        for i in range(len(users)):
-            user1 = users[i]
-            if user1 in matched_users or fights_created == max_fights_per_class:
-                continue
-            for j in range(i+1, len(users)):
-                user2 = users[j]
-                if user2 in matched_users or user1 in matched_users or user1 == user2:
+
+    for weight_classes in [weight_classes_amateurs, weight_classes_professionals]:
+        for weight_class, users in sorted(weight_classes.items(), reverse= True):
+            fights_created = 0
+            for i in range(len(users)):
+                user1 = users[i]
+                if user1 in matched_users or fights_created == max_fights_per_class:
                     continue
-                if calculate_points(user1.userprofile) == 0:
-                    if calculate_points(user2.userprofile) == 0:
+                for j in range(i+1, len(users)):
+                    user2 = users[j]
+                    if user2 in matched_users or user1 in matched_users or user1 == user2:
+                        continue
+                    if calculate_points(user1.userprofile) == 0:
+                        if calculate_points(user2.userprofile) == 0:
+                            matches.append((user1, user2))
+                            matched_users.add(user1)
+                            matched_users.add(user2)
+                            reset_user_not_matched_counter(user1, event)
+                            reset_user_not_matched_counter(user2, event)
+                            fights_created += 1
+                    points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
+                    if user1 not in matched_users and user2 not in matched_users and points_difference <= 5 and points_difference >= -5:
                         matches.append((user1, user2))
                         matched_users.add(user1)
                         matched_users.add(user2)
                         reset_user_not_matched_counter(user1, event)
                         reset_user_not_matched_counter(user2, event)
                         fights_created += 1
-                points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
-                if user1 not in matched_users and user2 not in matched_users and points_difference <= 5 and points_difference >= -5:
-                    matches.append((user1, user2))
-                    matched_users.add(user1)
-                    matched_users.add(user2)
-                    reset_user_not_matched_counter(user1, event)
-                    reset_user_not_matched_counter(user2, event)
-                    fights_created += 1
+                        break
 
     return matches
 
@@ -173,7 +186,6 @@ def create_event(request):
         form = EventForm(request.POST)
         if form.is_valid():
             event = form.save()
-            messages.success(request, 'Event created successfully.')
             return redirect('box:manage_events')
     else:
         form = EventForm()

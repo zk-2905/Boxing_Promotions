@@ -6,43 +6,52 @@
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'box/css/my_events.css' %}">
 
-    <h2>Events - Searching for an Opponent</h2>
-    {% if searching_for_opponent %}
-        <ul>
-        {% for event in searching_for_opponent %}
-            <li>{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No events are currently in the searching phase.</p>
-    {% endif %}
+    <div class="event-section" id="searching-section">
+        <h2>Events - Searching for an Opponent</h2>
+        {% if searching_for_opponent %}
+            <ul class="event-list">
+                {% for event in searching_for_opponent %}
+                    <li class="event-item">{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No events are currently in the searching phase.</p>
+        {% endif %}
+    </div>
 
-    <h2>Events - Matched an Opponent</h2>
-    {% if matched_opponent %}
-        <ul>
-        {% for event in matched_opponent %}
-            <li>{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No events where you've matched an opponent.</p>
-    {% endif %}
+    <div class="event-section" id="matched-section">
+        <h2>Events - Matched an Opponent</h2>
+        {% if matched_opponent %}
+            <ul class="event-list">
+                {% for event in matched_opponent %}
+                    <li class="event-item">{{ event.title }} - {{ event.date }} - {{ event.location }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No events where you've matched an opponent.</p>
+        {% endif %}
+    </div>
 
-    <h2>Events - Event Completed</h2>
-    {% if event_completed %}
-        <ul>
-        {% for event_data in event_completed %}
-            <li>
-                {{ event_data.event.title }} - {{ event_data.event.date }} - {{ event_data.event.location }}
-                <ul>
-                    {% for result in event_data.results %}
-                        <li>{{ result.red_boxer.username }} vs {{ result.blue_boxer.username }} - Result: {{ result.red_result }} - {{ result.blue_result }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No completed events.</p>
-    {% endif %}
+    <div class="event-section" id="completed-section">
+        <h2>Events - Event Completed</h2>
+        {% if event_completed %}
+            <ul class="event-list">
+                {% for event_data in event_completed %}
+                    <li>
+                        <div class="event-info">
+                            <h3>{{ event_data.event.title }}</h3>
+                            <p>Date: {{ event_data.event.date }} | Location: {{ event_data.event.location }}</p>
+                        </div>
+                        <ul class="match-results">
+                            {% for result in event_data.results %}
+                                <li>{{ result.red_boxer.username }} vs {{ result.blue_boxer.username }} - Result: {{ result.red_result }} - {{ result.blue_result }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No completed events.</p>
+        {% endif %}
+    </div>
 {% endblock %}

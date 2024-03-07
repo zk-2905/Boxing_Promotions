@@ -26,6 +26,12 @@ class UserProfile(models.Model):
     draws = models.IntegerField(default=0)
     profile_picture = models.ImageField(null=True, blank=True, upload_to="images/")
     not_matched_counter = models.IntegerField(default= 0)
+    BOXER_TYPE_CHOICES = [
+        ('amateur','Amateur'),
+        ('professional','Professional'),
+    ]
+    boxer_type = models.CharField(max_length=20, choices=BOXER_TYPE_CHOICES, default='amateur')
+
 
     def __str__(self):
         return self.user.username

@@ -11,7 +11,7 @@ class UserForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ("age", "nickname", "weight", "profile_picture")
+        fields = ("age", "nickname", "weight", "profile_picture", "boxer_type")
 
 class EventForm(forms.ModelForm):
     class Meta:
