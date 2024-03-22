@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 from .forms import UserForm, UserProfileForm, EventForm
 from .models import UserProfile, BoxingEvent, EventRegistration, EventFight, Fight
 import datetime
@@ -13,22 +14,26 @@ def HomePage(request):
 @login_required
 @transaction.atomic
 def update_profile(request):
-    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_form = UserForm(request.POST or None, instance=request.user)
+    profile_form = UserProfileForm(request.POST or None, request.FILES or None, instance=user_profile)
 
     if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=request.user)
-        profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
-
         if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            return redirect('box:profile')
-    else: 
-        user_form = UserForm(instance=request.user)
-        profile_form = UserProfileForm(instance=user_profile)
-    
-    return render(request, 'box/profile.html', {'user_form': user_form, 'profile_form': profile_form, 'user': request.user, 'user_profile': user_profile})
+            try:
+                user_form.save()
+                profile_form.save()
+                messages.success(request, "Profile updated successfully.")
+                return redirect('box:profile')
+            except Exception as e:
+                messages.error(request, f"An error occurred. Please try again. {str(e)}")
 
+    return render(request, 'box/profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'user': request.user,
+        'user_profile': user_profile
+    })
 
 @login_required
 def events_list(request):
@@ -66,7 +71,7 @@ def register_event(request, event_id):
     max_fights = 6
     current_fights_count = EventFight.objects.filter(event=event).count()
     if current_fights_count >= max_fights:
-        messages.error(request, "The maximum number of fights has been reached for this event.") ### change register button into event full ###
+        messages.error(request, "The maximum number of fights has been reached for this event.")
         return redirect('box:events_list')
 
     if request.method == "POST":
@@ -76,7 +81,7 @@ def register_event(request, event_id):
         if matches:
             create_fight(matches, event)
             update_not_matched_counters(event)
-            return redirect('box:event_detail', event_id=event.id) ### Need to send email to user to notify an opponent is found. Then on the event it must be on the event details where his name and opponent is alongside with othe oppponents ###
+            return redirect('box:event_detail', event_id=event.id)
         return redirect('box:events_list')
     else:
         profile_form = UserProfileForm(instance=user_profile)
@@ -86,24 +91,27 @@ def already_registered(request):
     return render(request, 'box/already_registered.html')
 
 def find_matches(current_user, event):
-    weight_classes = {}
-    weight_classes_amateurs = {}
-    weight_classes_professionals = {}
+    weight_classes_amateurs_male = {}
+    weight_classes_professionals_male = {}
+    weight_classes_amateurs_female = {}
+    weight_classes_professionals_female = {}
 
     for user_registration in EventRegistration.objects.filter(event=event, matched=False):
         user = user_registration.user
         weight = int(user.userprofile.weight)
         weight_class = (weight // 1)
-        if user.userprofile.boxer_type == 'amateur':
-            weight_classes = weight_classes_amateurs
+        if user.userprofile.gender == 'M':
+            weight_classes = weight_classes_amateurs_male if user.userprofile.boxer_type == 'amateur' else weight_classes_professionals_male
+        elif user.userprofile.gender == 'F':
+            weight_classes = weight_classes_amateurs_female if user.userprofile.boxer_type == 'amateur' else weight_classes_professionals_female
         else:
-            weight_classes = weight_classes_professionals
-        
+            continue
+    
         if weight_class not in weight_classes:
             weight_classes[weight_class] = []
         weight_classes[weight_class].append(user)
 
-    for weight_classes in [weight_classes_amateurs, weight_classes_professionals]:
+    for weight_classes in [weight_classes_amateurs_male, weight_classes_professionals_male, weight_classes_amateurs_female, weight_classes_professionals_female]:
         for users in weight_classes.values():
             users.sort(key = lambda user: (user.userprofile.not_matched_counter, calculate_points(user.userprofile)), reverse= True)
 
@@ -111,7 +119,7 @@ def find_matches(current_user, event):
     matched_users = set()
     max_fights_per_class = 6
 
-    for weight_classes in [weight_classes_amateurs, weight_classes_professionals]:
+    for weight_classes in [weight_classes_amateurs_male, weight_classes_professionals_male, weight_classes_amateurs_female, weight_classes_professionals_female]:
         for weight_class, users in sorted(weight_classes.items(), reverse= True):
             fights_created = 0
             for i in range(len(users)):
@@ -173,8 +181,9 @@ def create_fight(matches, event):
         registration_user2 = EventRegistration.objects.get(user=user2, event=event)
         registration_user2.matched = True
         registration_user2.save()
-
     return event_fight
+
+
 
 def events_management(request):
     events = BoxingEvent.objects.all()

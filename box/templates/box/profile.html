@@ -26,6 +26,9 @@
             {% if user_profile.boxer_type %}
                 <p><strong>Boxer Type:</strong> {{ user_profile.get_boxer_type_display }}</p>
             {% endif %}
+            {% if user_profile.gender %}
+                <p><strong>Gender:</strong> {{ user_profile.get_gender_display }}</p>
+            {% endif %}
             {% if user_profile.wins is not None or user_profile.losses is not None or user_profile.draws is not None %}
                 <p><strong>Record:</strong> {{ user_profile.wins|default:0 }}-{{ user_profile.losses|default:0 }}-{{ user_profile.draws|default:0 }}</p>
             {% endif %}
