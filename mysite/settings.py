@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'box',
-    'background_task',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -147,6 +146,3 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'zadykhan29@gmail.com'
 EMAIL_HOST_PASSWORD = 'lkew sxus mvqc oifk'
 EMAIL_USE_TLS = True
-
-# Background tasks settings
-BACKGROUND_TASK_RUN_ASYNC = True
