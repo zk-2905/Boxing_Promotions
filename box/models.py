@@ -3,7 +3,7 @@ from django.contrib.auth.admin import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import Group, Permission
-from datetime import timedelta, date
+from datetime import date
 
 def create_organiser_group():
     organiser_group, created = Group.objects.get_or_create(name='organiser')

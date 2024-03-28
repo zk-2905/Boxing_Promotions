@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.conf import settings
 from .forms import UserForm, UserProfileForm, EventForm
 from .models import UserProfile, BoxingEvent, EventRegistration, EventFight, Fight
 import datetime
@@ -150,7 +149,6 @@ def find_matches(current_user, event):
 
     return matches
 
-
 def reset_user_not_matched_counter(user, event):
     registration = UserProfile.objects.get(user=user)
     registration.not_matched_counter = 0
@@ -182,8 +180,6 @@ def create_fight(matches, event):
         registration_user2.matched = True
         registration_user2.save()
     return event_fight
-
-
 
 def events_management(request):
     events = BoxingEvent.objects.all()
