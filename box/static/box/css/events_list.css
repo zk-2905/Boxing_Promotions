@@ -1,3 +1,56 @@
+/* General styles */
+.event-header-container {
+    padding-top: 40px; /* Adjust the padding-top value as needed */
+}
+.event-fights-list {
+    list-style: none;
+    padding: 0;
+}
+
+.event-fight-item {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.event-fight-item h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.event-fight-item a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.event-fight-item a:hover {
+    background-color: #0056b3;
+}
+
+/* Button styles */
+.event-buttons {
+    text-align: right;
+}
+
+.event-buttons a {
+    display: inline-block;
+    padding: 10px;
+    background-color: #007BFF;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 10px; /* Adjust the margin-top value as needed */
+}
+
+
+.event-buttons a:hover {
+    background-color: #0056b3;
+}
+
+/* Event box styles */
 .event-box {
     border: 1px solid #ddd;
     padding: 15px;
@@ -26,54 +79,5 @@
 }
 
 .event-box a:hover {
-    background-color: #0056b3;
-}
-
-/* Styles for the "Manage Events" button */
-.event-buttons {
-    text-align: right;
-    margin-top: 10px;
-}
-
-.event-buttons a {
-    display: inline-block;
-    padding: 10px;
-    background-color: #007BFF;
-    text-decoration: none;
-    border-radius: 4px;
-}
-
-.event-buttons a:hover {
-    background-color: #0056b3;
-}
-
-
-
-.event-fights-list {
-    list-style: none;
-    padding: 0;
-}
-
-.event-fight-item {
-    font-size: 16px;
-    margin-bottom: 20px;
-}
-
-.event-fight-item h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.event-fight-item a {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 8px 12px;
-    background-color: #007BFF;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-}
-
-.event-fight-item a:hover {
     background-color: #0056b3;
 }
