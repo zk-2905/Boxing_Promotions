@@ -66,6 +66,7 @@
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert {{ message.tags }}">
+                        <span class="close-button" onclick="closeMessage(this)">×</span>
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -88,6 +89,12 @@
             overlay.addEventListener("click", () => {
                 navBar.classList.remove("open");
             })
+        </script>
+
+        <script>
+            function closeMessage(element) {
+                element.parentElement.style.display = "none";
+            }
         </script>
     </body>
 </html>
