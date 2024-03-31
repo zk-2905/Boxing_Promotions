@@ -4,53 +4,54 @@
 {% load static %}
 
 {% block content %}
-  <link rel="stylesheet" type="text/css" href="{% static 'box/css/edit_event.css' %}">
-  <div class="edit-event-container">
+<link rel="stylesheet" type="text/css" href="{% static 'box/css/edit_event.css' %}">
+<div class="edit-event-container">
     <h2>Edit Event</h2>
 
     <form method="post" action="{% url 'box:edit_event' event_id=event.id %}" id="eventForm">
-      {% csrf_token %}
-      {{ form.as_p }}
+        {% csrf_token %}
+        {{ form.as_p }}
 
-      {% if match_results_allowed %}
+        {% if match_results_allowed %}
         <!-- Add match result input fields for each fight -->
         {% for event_fight in event.eventfight_set.all %}
-          <div class="match-result">
+        <div class="match-result">
             <label for="red_result_{{ event_fight.id }}">Result for {{ event_fight.fight.red_boxer.username }}:</label>
             <select name="red_result_{{ event_fight.id }}">
-              <option value="" {% if event_fight.red_boxer_result == '' %}selected{% endif %}>Select</option>
-              <option value="win" {% if event_fight.red_boxer_result == 'win' %}selected{% endif %}>Win</option>
-              <option value="loss" {% if event_fight.red_boxer_result == 'loss' %}selected{% endif %}>Loss</option>
-              <option value="draw" {% if event_fight.red_boxer_result == 'draw' %}selected{% endif %}>Draw</option>
+                <option value="" {% if event_fight.red_boxer_result == '' %}selected{% endif %}>Select</option>
+                <option value="win" {% if event_fight.red_boxer_result == 'win' %}selected{% endif %}>Win</option>
+                <option value="loss" {% if event_fight.red_boxer_result == 'loss' %}selected{% endif %}>Loss</option>
+                <option value="draw" {% if event_fight.red_boxer_result == 'draw' %}selected{% endif %}>Draw</option>
             </select><br>
 
             <label for="blue_result_{{ event_fight.id }}">Result for {{ event_fight.fight.blue_boxer.username }}:</label>
             <select name="blue_result_{{ event_fight.id }}">
-              <option value="" {% if event_fight.blue_boxer_result == '' %}selected{% endif %}>Select</option>
-              <option value="win" {% if event_fight.blue_boxer_result == 'win' %}selected{% endif %}>Win</option>
-              <option value="loss" {% if event_fight.blue_boxer_result == 'loss' %}selected{% endif %}>Loss</option>
-              <option value="draw" {% if event_fight.blue_boxer_result == 'draw' %}selected{% endif %}>Draw</option>
+                <option value="" {% if event_fight.blue_boxer_result == '' %}selected{% endif %}>Select</option>
+                <option value="win" {% if event_fight.blue_boxer_result == 'win' %}selected{% endif %}>Win</option>
+                <option value="loss" {% if event_fight.blue_boxer_result == 'loss' %}selected{% endif %}>Loss</option>
+                <option value="draw" {% if event_fight.blue_boxer_result == 'draw' %}selected{% endif %}>Draw</option>
             </select><br>
-          </div>
+        </div>
         {% endfor %}
-      {% endif %}
+        {% endif %}
 
-      <button type="submit" class="update-button">Update Event</button>
+        <button type="submit" class="update-button">Update Event</button>
     </form>
 
     {% if not match_results_allowed %}
-      <p class="notification">Match results can only be input on the day of the event.</p>
+    <p class="notification">Match results can only be input on the day of the event.</p>
+    {% endif %}
+    <!-- Show the "Match Boxers" button only if it's one day before the event -->
+    {% if one_day_before_event %}
+    <form method="post" action="{% url 'box:register_event' event_id=event.id %}">
+        {% csrf_token %}
+        <button type="submit" class="match-button">Match Boxers</button>
+    </form>
     {% endif %}
 
     <form method="post" action="{% url 'box:delete_event' event_id=event.id %}">
-      {% csrf_token %}
-      <button type="submit" class="delete-button">Delete Event</button>
+        {% csrf_token %}
+        <button type="submit" class="delete-button">Delete Event</button>
     </form>
-
-    <!-- Add button to register for event -->
-    <form method="post" action="{% url 'box:register_event' event_id=event.id %}">
-      {% csrf_token %}
-      <button type="submit" class="match-button">Match Boxers</button>
-    </form>
-  </div>
+</div>
 {% endblock %}
