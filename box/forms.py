@@ -12,6 +12,13 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ("age", "nickname", "weight", "profile_picture", "boxer_type", "gender")
+        widgets = {
+            'weight': forms.NumberInput(attrs={'step': 'any'}),  # Allow any decimal value
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        self.fields['weight'].required = True  # Set weight field as required
 
 class EventForm(forms.ModelForm):
     class Meta:
