@@ -7,26 +7,42 @@
 
 {% block content %}
     <link rel="stylesheet" type="text/css" href="{% static 'box/css/events_list.css' %}">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin-top: 70px;">Upcoming Boxing Events</h2>
-        
+    <div style="margin-top: 30px;"></div>
+    <div class="event-header-container">
+        <h2>Upcoming Boxing Events</h2>
+    </div>
+    
+    <div class="event-buttons" style="margin-top: -40px;">
         {% if user|has_group:"organiser" %}
-            <div class="event-buttons" style="margin-top: 55px;display: inline-block; padding: 10px;">
-                <a href="{% url 'box:manage_events' %}" style="color: black;">Manage Events</a>
-            </div>
+            <a href="{% url 'box:manage_events' %}" style="color: white;">Manage Events</a>
         {% endif %}
     </div>
-
-    {% if events %}
-        <ul class="event-fights-list">
-            {% for event in events %}
-                <li class="event-fight-item">
-                    <h3>{{ event.title }} - {{ event.date }} - {{ event.location }}</h3>
-                    <a href="{% url 'box:event_detail' event_id=event.id %}">View Details</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No upcoming events at the moment.</p>
+    {% if user|has_group:"organiser" %}
+        {% if events %}
+            <ul class="event-fights-list">
+                {% for event in events %}
+                    <li class="event-box">
+                        <h3>{{ event.title }} - {{ event.date }} - {{ event.location }}</h3>
+                        <a href="{% url 'box:event_detail' event_id=event.id %}">View Details</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No upcoming events at the moment.</p>
+        {% endif %}
+    {% endif %}
+    {% if not user|has_group:"organiser" %}
+        {% if events %}
+            <ul class="event-fights-list" style="margin-top: 45px;">
+                {% for event in events %}
+                    <li class="event-box">
+                        <h3>{{ event.title }} - {{ event.date }} - {{ event.location }}</h3>
+                        <a href="{% url 'box:event_detail' event_id=event.id %}">View Details</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No upcoming events at the moment.</p>
+        {% endif %}
     {% endif %}
 {% endblock %}
