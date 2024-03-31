@@ -214,10 +214,12 @@ def edit_event(request,event_id):
         form = EventForm(instance=event)
 
     match_results_allowed = (event.date == today)
+    one_day_before_event = datetime.date.today() == (event.date - datetime.timedelta(days=1))
     context = {
         'form': form,
         'event': event,
         'match_results_allowed': match_results_allowed,
+        'one_day_before_event': one_day_before_event,
     }
         
     return render(request, 'box/edit_event.html', context)
