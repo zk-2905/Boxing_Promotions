@@ -7,6 +7,11 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ("first_name", "last_name", "email")
+    
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -18,7 +23,9 @@ class UserProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
-        self.fields['weight'].required = True  # Set weight field as required
+        self.fields['weight'].required = True 
+        self.fields['age'].required = True 
+        self.fields['gender'].required = True 
 
 class EventForm(forms.ModelForm):
     class Meta:
