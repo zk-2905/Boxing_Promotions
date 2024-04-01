@@ -138,7 +138,7 @@ def find_matches(current_user, event):
                             reset_user_not_matched_counter(user2, event)
                             fights_created += 1
                     points_difference = abs(calculate_points(user1.userprofile) - calculate_points(user2.userprofile))
-                    if user1 not in matched_users and user2 not in matched_users and points_difference <= 5 and points_difference >= -5:
+                    if user1 not in matched_users and user2 not in matched_users and points_difference <= 5 and points_difference >= -5 and calculate_points(user1.userprofile) != 0 and calculate_points(user2.userprofile) != 0:
                         matches.append((user1, user2))
                         matched_users.add(user1)
                         matched_users.add(user2)
