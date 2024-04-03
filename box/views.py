@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserForm, UserProfileForm, EventForm
 from .models import UserProfile, BoxingEvent, EventRegistration, EventFight, Fight
+from .helper import update_not_matched_counters, reset_user_not_matched_counter, calculate_points
 import datetime
 
 
@@ -149,20 +150,6 @@ def find_matches(current_user, event):
 
     return matches
 
-def reset_user_not_matched_counter(user, event):
-    registration = UserProfile.objects.get(user=user)
-    registration.not_matched_counter = 0
-    registration.save()
-
-def update_not_matched_counters(event):
-    not_matched_users = EventRegistration.objects.filter(event=event, matched=False)
-    for registration in not_matched_users:
-        user_profile = registration.user.userprofile
-        user_profile.not_matched_counter += 1
-        user_profile.save()
-
-def calculate_points(user_profile):
-    return (user_profile.wins * 3) + (user_profile.draws * 2) + user_profile.losses
 
 def create_fight(matches, event):
     current_fights_count = EventFight.objects.filter(event=event).count()
